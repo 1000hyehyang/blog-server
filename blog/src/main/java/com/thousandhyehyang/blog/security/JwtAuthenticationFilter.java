@@ -48,11 +48,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (accountOptional.isPresent()) {
                     Account account = accountOptional.get();
 
-                    // Create authentication token with appropriate authorities
+                    // Create authentication token with authorities from Account entity
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             account,
                             null,
-                            Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + account.getRole().name()))
+                            account.getAuthorities()
                     );
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

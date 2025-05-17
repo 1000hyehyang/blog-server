@@ -3,6 +3,11 @@ spring:
   profiles:
     active: dev
 
+  web:
+    resources:
+      cache:
+        use-etag: false
+
   security:
     oauth2:
       client:

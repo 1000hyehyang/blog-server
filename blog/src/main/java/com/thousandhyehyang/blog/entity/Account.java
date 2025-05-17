@@ -1,10 +1,19 @@
 package com.thousandhyehyang.blog.entity;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table(name = "accounts")
-public class Account extends BaseEntity {
+public class Account extends BaseEntity implements UserDetails, OAuth2User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +38,12 @@ public class Account extends BaseEntity {
     @Column(nullable = false)
     private Role role;
 
+    @Transient
+    private Map<String, Object> attributes;
+
     // Default constructor required by JPA
     protected Account() {
+        this.attributes = new HashMap<>();
     }
 
     // Constructor for creating a new account
@@ -41,10 +54,59 @@ public class Account extends BaseEntity {
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.role = role != null ? role : Role.USER;
+        this.attributes = new HashMap<>();
     }
 
     public enum Role {
         USER, ADMIN
+    }
+
+    // UserDetails implementation
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        // OAuth2 users don't have passwords
+        return null;
+    }
+
+    @Override
+    public String getUsername() {
+        // Using email as the username
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    // OAuth2User implementation
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(Map<String, Object> attributes) {
+        this.attributes = attributes;
     }
 
     // Getters

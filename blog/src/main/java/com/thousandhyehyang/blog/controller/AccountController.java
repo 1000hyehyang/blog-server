@@ -5,7 +5,9 @@ import com.thousandhyehyang.blog.dto.account.NicknameUpdateRequest;
 import com.thousandhyehyang.blog.entity.Account;
 import com.thousandhyehyang.blog.repository.AccountRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -53,17 +55,22 @@ public class AccountController {
     /**
      * 사용자 프로필 조회
      * @param account 인증된 사용자 계정
+     * @return 사용자 프로필 정보가 담긴 응답
      */
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getProfile(@AuthenticationPrincipal Account account) {
+        if (account == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Unauthorized"));
+        }
+
         Map<String, Object> data = new HashMap<>();
         data.put("id", account.getId());
         data.put("email", account.getEmail());
         data.put("name", account.getName());
         data.put("nickname", account.getNickname());
         data.put("profileImage", account.getProfileImage());
+        data.put("role", account.getRole());
 
-        return ResponseEntity.ok(ApiResponse.success(data, "Profile retrieved successfully"));
+        return ResponseEntity.ok(ApiResponse.success(data));
     }
-
 }

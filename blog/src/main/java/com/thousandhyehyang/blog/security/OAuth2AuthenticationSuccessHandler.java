@@ -1,8 +1,10 @@
 package com.thousandhyehyang.blog.security;
 
+import com.thousandhyehyang.blog.config.JwtProperties;
 import com.thousandhyehyang.blog.entity.Account;
 import com.thousandhyehyang.blog.repository.AccountRepository;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -21,17 +23,20 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final TokenProvider tokenProvider;
     private final RedisTokenService redisTokenService;
     private final AccountRepository accountRepository;
+    private final JwtProperties jwtProperties;
 
     // Frontend URL to redirect to after successful authentication
-    private static final String REDIRECT_URI = "http://localhost:5173/oauth/callback";
+    private static final String REDIRECT_URI = "http://localhost:5173/";
 
     public OAuth2AuthenticationSuccessHandler(
             TokenProvider tokenProvider,
             RedisTokenService redisTokenService,
-            AccountRepository accountRepository) {
+            AccountRepository accountRepository,
+            JwtProperties jwtProperties) {
         this.tokenProvider = tokenProvider;
         this.redisTokenService = redisTokenService;
         this.accountRepository = accountRepository;
+        this.jwtProperties = jwtProperties;
     }
 
     @Override
@@ -40,79 +45,32 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        Map<String, Object> attributes = oAuth2User.getAttributes();
+        // Get the Account entity directly from the Authentication object
+        Account account = (Account) authentication.getPrincipal();
 
-        // Get provider
-        String provider = getProvider(request);
+        // Generate tokens
+        String accessToken = tokenProvider.createAccessToken(account.getId());
+        String refreshToken = tokenProvider.createRefreshToken(account.getId());
 
-        // Extract email and username based on provider
-        String email = getEmail(attributes, provider);
-        String username = getUserId(attributes, provider);
+        // Store refresh token in Redis
+        redisTokenService.storeRefreshToken(account.getId(), refreshToken);
 
-        // Find account by provider and email/username
-        Optional<Account> accountOptional = findAccount(provider, email, username);
+        // Set refresh token as HttpOnly cookie
+        jakarta.servlet.http.Cookie refreshTokenCookie = new jakarta.servlet.http.Cookie("refreshToken", refreshToken);
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge((int) (jwtProperties.getRefreshTokenExpirationMs() / 1000));
+        // In production, you might want to set secure flag to true
+        // refreshTokenCookie.setSecure(true);
+        response.addCookie(refreshTokenCookie);
 
-        if (accountOptional.isPresent()) {
-            Account account = accountOptional.get();
+        // Build redirect URL with access token only
+        String targetUrl = UriComponentsBuilder.fromUriString(REDIRECT_URI)
+                .queryParam("accessToken", accessToken)
+                .build().toUriString();
 
-            // Generate tokens
-            String accessToken = tokenProvider.createAccessToken(account.getId());
-            String refreshToken = tokenProvider.createRefreshToken(account.getId());
-
-            // Store refresh token in Redis
-            redisTokenService.storeRefreshToken(account.getId(), refreshToken);
-
-            // Build redirect URL with tokens
-            String targetUrl = UriComponentsBuilder.fromUriString(REDIRECT_URI)
-                    .queryParam("accessToken", accessToken)
-                    .queryParam("refreshToken", refreshToken)
-                    .build().toUriString();
-
-            getRedirectStrategy().sendRedirect(request, response, targetUrl);
-        } else {
-            // This should not happen as the account should have been created in CustomOAuth2UserService
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Account not found");
-        }
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
-    private String getProvider(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        if (uri.contains("google")) {
-            return "google";
-        } else if (uri.contains("github")) {
-            return "github";
-        }
-        return "unknown";
-    }
-
-    private String getEmail(Map<String, Object> attributes, String provider) {
-        if ("google".equals(provider)) {
-            return (String) attributes.get("email");
-        } else if ("github".equals(provider)) {
-            return (String) attributes.get("email");
-        }
-        return null;
-    }
-
-    private String getUserId(Map<String, Object> attributes, String provider) {
-        if ("google".equals(provider)) {
-            return (String) attributes.get("sub");
-        } else if ("github".equals(provider)) {
-            return ((Integer) attributes.get("id")).toString();
-        }
-        return null;
-    }
-
-    private Optional<Account> findAccount(String provider, String email, String username) {
-        // Find by email regardless of provider
-        if (email != null) {
-            Optional<Account> accountByEmail = accountRepository.findByEmail(email);
-            if (accountByEmail.isPresent()) {
-                return accountByEmail;
-            }
-        }
-
-        return Optional.empty();
-    }
+    // Removed unused methods as we now get the Account directly from the Authentication object
 }

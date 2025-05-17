@@ -56,11 +56,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         // Save or update user
         Account account = saveOrUpdateUser(userInfo, provider);
 
-        return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + account.getRole().name())),
-                attributes,
-                userNameAttributeName
-        );
+        // Set OAuth2 attributes in the Account entity
+        account.setAttributes(attributes);
+
+        // Return the Account entity as the OAuth2User
+        return account;
     }
 
     private Account saveOrUpdateUser(OAuth2UserInfo userInfo, String provider) {
