@@ -1,0 +1,21 @@
+spring:
+  profiles:
+    active: dev
+
+server:
+  servlet:
+    context-path: /api
+
+  error:
+    include-message: always
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    config-url: /api/v3/api-docs/swagger-config
+    urls:
+      - url: /api/v3/api-docs
+        name: API Documentation

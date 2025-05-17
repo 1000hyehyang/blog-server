@@ -1,0 +1,31 @@
+# src/main/resources/application-prod.yml
+spring:
+  datasource:
+    url: jdbc:mysql://blog-ducogus12-3b56.k.aivencloud.com:17417/defaultdb?ssl-mode=REQUIRED
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+
+  servlet:
+    multipart:
+      max-file-size: 60MB
+      max-request-size: 60MB
+
+cloudflare:
+  r2:
+    access-key: ${R2_ACCESS_KEY}
+    secret-key: ${R2_SECRET_KEY}
+    bucket: blog
+    endpoint: https://740ddd7540732b28b20cb6d95015a2be.r2.cloudflarestorage.com
+    public-url: https://pub-7bc94e13b36142b98e97c1e4d5839a10.r2.dev
+    region: auto
+
+logging:
+  level:
+    root: warn
