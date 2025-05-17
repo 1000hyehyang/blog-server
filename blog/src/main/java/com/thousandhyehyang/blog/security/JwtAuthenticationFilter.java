@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Optional;
 
 @Component
@@ -40,15 +41,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
+            System.out.println("🔐 Extracted JWT: " + jwt);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt) && !tokenProvider.isRefreshToken(jwt)) {
                 Long accountId = tokenProvider.getUserIdFromToken(jwt);
+                System.out.println("✅ 토큰 유저 ID: " + accountId);
 
                 Optional<Account> accountOptional = accountRepository.findById(accountId);
                 if (accountOptional.isPresent()) {
                     Account account = accountOptional.get();
+                    logger.info("✅ Jwt 필터 - 인증 대상 계정 ID: {}", account.getId());
+                    logger.info("✅ Jwt 필터 - 인증 대상 권한: {}", account.getAuthorities());
 
-                    // Create authentication token with authorities from Account entity
+                    // Ensure attributes is initialized
+                    if (account.getAttributes() == null) {
+                        logger.warn("Account attributes was null, initializing empty map");
+                        account.setAttributes(new HashMap<>());
+                    }
+
+                    // Account 엔티티의 권한으로 인증 토큰 생성
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                             account,
                             null,
@@ -57,12 +68,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
+                    System.out.println("✅ SecurityContext 설정 완료됨!");
+                } else {
+                    logger.warn("No account found for ID: {}", accountId);
                 }
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
+            ex.printStackTrace();
         }
 
+        System.out.println("✅ Jwt 필터 끝. 다음 필터로 넘깁니다.");
         filterChain.doFilter(request, response);
     }
 

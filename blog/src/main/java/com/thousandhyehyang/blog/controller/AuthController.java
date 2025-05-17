@@ -36,20 +36,20 @@ public class AuthController {
     @Operation(summary = "액세스 토큰 재발급", description = "HttpOnly 쿠키의 Refresh Token으로 Access Token을 재발급합니다.")
     public ResponseEntity<ApiResponse<TokenRefreshResponse>> refreshToken(@CookieValue(name = "refreshToken") String refreshToken) {
 
-        // Validate refresh token
+        // 리프레시 토큰 검증
         if (!tokenProvider.validateToken(refreshToken) || !tokenProvider.isRefreshToken(refreshToken)) {
             return ResponseEntity.badRequest().body(ApiResponse.error("Invalid refresh token"));
         }
 
-        // Get user ID from token
+        // 토큰에서 사용자 ID 가져오기
         Long userId = tokenProvider.getUserIdFromToken(refreshToken);
 
-        // Validate refresh token in Redis
+        // Redis에서 리프레시 토큰 검증
         if (!redisTokenService.validateRefreshToken(userId, refreshToken)) {
             return ResponseEntity.badRequest().body(ApiResponse.error("Invalid or expired refresh token"));
         }
 
-        // Generate new access token
+        // 새 액세스 토큰 생성
         String newAccessToken = tokenProvider.createAccessToken(userId);
 
         return ResponseEntity.ok(ApiResponse.success(new TokenRefreshResponse(newAccessToken)));
@@ -66,15 +66,15 @@ public class AuthController {
             @AuthenticationPrincipal Account account,
             HttpServletResponse response) {
         if (account != null) {
-            // Delete refresh token from Redis
+            // Redis에서 리프레시 토큰 삭제
             redisTokenService.deleteRefreshToken(account.getId());
 
-            // Clear the refresh token cookie
+            // 리프레시 토큰 쿠키 삭제
             Cookie cookie = new Cookie("refreshToken", "");
             cookie.setHttpOnly(true);
             cookie.setPath("/");
-            cookie.setMaxAge(0); // Expire immediately
-            // In production, you should set secure flag to true
+            cookie.setMaxAge(0); // 즉시 만료
+            // 프로덕션 환경에서는 secure 플래그를 true로 설정해야 합니다
             // cookie.setSecure(true);
             response.addCookie(cookie);
 

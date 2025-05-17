@@ -30,15 +30,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        // Extract provider details
+        // 제공자 세부 정보 추출
         String provider = userRequest.getClientRegistration().getRegistrationId();
         String userNameAttributeName = userRequest.getClientRegistration()
                 .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
-        // Extract user details
+        // 사용자 세부 정보 추출
         Map<String, Object> attributes = oAuth2User.getAttributes();
 
-        // Process user information based on provider
+        // 제공자 기반 사용자 정보 처리
         OAuth2UserInfo userInfo;
         if (provider.equals("google")) {
             userInfo = new GoogleOAuth2UserInfo(attributes);
@@ -48,25 +48,25 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             throw new OAuth2AuthenticationException("Login with " + provider + " is not supported");
         }
 
-        // Email can be null, we'll use username for identification
+        // 이메일이 null일 수 있으므로 식별을 위해 사용자 이름 사용
         if (!StringUtils.hasText(userInfo.getId())) {
             throw new OAuth2AuthenticationException("User ID not found from OAuth2 provider");
         }
 
-        // Save or update user
+        // 사용자 저장 또는 업데이트
         Account account = saveOrUpdateUser(userInfo, provider);
 
-        // Set OAuth2 attributes in the Account entity
+        // Account 엔티티에 OAuth2 속성 설정
         account.setAttributes(attributes);
 
-        // Return the Account entity as the OAuth2User
+        // Account 엔티티를 OAuth2User로 반환
         return account;
     }
 
     private Account saveOrUpdateUser(OAuth2UserInfo userInfo, String provider) {
         String email = userInfo.getEmail();
 
-        // Try to find by email regardless of provider
+        // 제공자에 관계없이 이메일로 찾기 시도
         Optional<Account> accountOptional = Optional.empty();
         if (StringUtils.hasText(email)) {
             accountOptional = accountRepository.findByEmail(email);
@@ -74,25 +74,25 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         Account account;
         if (accountOptional.isPresent()) {
-            // Update existing account
+            // 기존 계정 업데이트
             account = accountOptional.get();
             account.updateProfile(userInfo.getName(), userInfo.getImageUrl());
         } else {
-            // Create new account with nickname initialized to name
+            // 닉네임이 이름으로 초기화된 새 계정 생성
             account = new Account(
                     provider,
-                    email, // Email can be null
+                    email, // 이메일은 null일 수 있음
                     userInfo.getName(),
-                    userInfo.getName(), // Initialize nickname with name
+                    userInfo.getName(), // 이름으로 닉네임 초기화
                     userInfo.getImageUrl(),
-                    Account.Role.USER // Default role
+                    Account.Role.USER // 기본 역할
             );
         }
 
         return accountRepository.save(account);
     }
 
-    // Interface for OAuth2 user info
+    // OAuth2 사용자 정보를 위한 인터페이스
     interface OAuth2UserInfo {
         String getId();
         String getName();
@@ -100,7 +100,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String getImageUrl();
     }
 
-    // Google implementation
+    // Google 구현
     static class GoogleOAuth2UserInfo implements OAuth2UserInfo {
         private final Map<String, Object> attributes;
 
@@ -129,7 +129,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         }
     }
 
-    // GitHub implementation
+    // GitHub 구현
     static class GithubOAuth2UserInfo implements OAuth2UserInfo {
         private final Map<String, Object> attributes;
 

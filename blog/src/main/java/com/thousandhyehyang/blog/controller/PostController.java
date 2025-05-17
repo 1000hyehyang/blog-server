@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/posts")
 @Validated
 @Tag(name = "게시글 API", description = "게시글 생성, 조회, 삭제 관련 API")
 public class PostController {

@@ -1,5 +1,6 @@
 package com.thousandhyehyang.blog.controller;
 
+import ch.qos.logback.classic.Logger;
 import com.thousandhyehyang.blog.common.ApiResponse;
 import com.thousandhyehyang.blog.dto.account.NicknameUpdateRequest;
 import com.thousandhyehyang.blog.entity.Account;
@@ -15,10 +16,11 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/account")
+@RequestMapping("/account")
 public class AccountController {
 
     private final AccountRepository accountRepository;
+    private Logger log;
 
     public AccountController(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
@@ -54,13 +56,13 @@ public class AccountController {
 
     /**
      * 사용자 프로필 조회
-     * @param account 인증된 사용자 계정
-     * @return 사용자 프로필 정보가 담긴 응답
      */
     @GetMapping("/profile")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getProfile(@AuthenticationPrincipal Account account) {
-        if (account == null) {
-            return ResponseEntity.status(401).body(ApiResponse.error("Unauthorized"));
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getProfile(@AuthenticationPrincipal Object principal) {
+        System.out.println("✅ principal class = " + (principal != null ? principal.getClass().getName() : "null"));
+
+        if (!(principal instanceof Account account)) {
+            return ResponseEntity.status(401).body(ApiResponse.error("로그인이 필요합니다."));
         }
 
         Map<String, Object> data = new HashMap<>();
@@ -73,4 +75,5 @@ public class AccountController {
 
         return ResponseEntity.ok(ApiResponse.success(data));
     }
+
 }

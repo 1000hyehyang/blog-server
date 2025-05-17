@@ -39,14 +39,13 @@ public class Account extends BaseEntity implements UserDetails, OAuth2User {
     private Role role;
 
     @Transient
-    private Map<String, Object> attributes;
+    private Map<String, Object> attributes = new HashMap<>();
 
-    // Default constructor required by JPA
+    // JPA에 필요한 기본 생성자
     protected Account() {
-        this.attributes = new HashMap<>();
     }
 
-    // Constructor for creating a new account
+    // 새 계정 생성을 위한 생성자
     public Account(String provider, String email, String name, String nickname, String profileImage, Role role) {
         this.provider = provider;
         this.email = email;
@@ -54,14 +53,13 @@ public class Account extends BaseEntity implements UserDetails, OAuth2User {
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.role = role != null ? role : Role.USER;
-        this.attributes = new HashMap<>();
     }
 
     public enum Role {
         USER, ADMIN
     }
 
-    // UserDetails implementation
+    // UserDetails 구현
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
@@ -69,13 +67,13 @@ public class Account extends BaseEntity implements UserDetails, OAuth2User {
 
     @Override
     public String getPassword() {
-        // OAuth2 users don't have passwords
+        // OAuth2 사용자는 비밀번호가 없음
         return null;
     }
 
     @Override
     public String getUsername() {
-        // Using email as the username
+        // 이메일을 사용자 이름으로 사용
         return email;
     }
 
@@ -99,7 +97,7 @@ public class Account extends BaseEntity implements UserDetails, OAuth2User {
         return true;
     }
 
-    // OAuth2User implementation
+    // OAuth2User 구현
     @Override
     public Map<String, Object> getAttributes() {
         return attributes;
@@ -109,7 +107,7 @@ public class Account extends BaseEntity implements UserDetails, OAuth2User {
         this.attributes = attributes;
     }
 
-    // Getters
+    // 게터
     public Long getId() {
         return id;
     }
@@ -142,13 +140,13 @@ public class Account extends BaseEntity implements UserDetails, OAuth2User {
         return this.role == Role.ADMIN;
     }
 
-    // Update profile information
+    // 프로필 정보 업데이트
     public void updateProfile(String name, String profileImage) {
         this.name = name;
         this.profileImage = profileImage;
     }
 
-    // Update nickname
+    // 닉네임 업데이트
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }

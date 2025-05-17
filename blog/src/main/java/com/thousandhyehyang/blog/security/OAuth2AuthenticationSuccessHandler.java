@@ -25,7 +25,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final AccountRepository accountRepository;
     private final JwtProperties jwtProperties;
 
-    // Frontend URL to redirect to after successful authentication
+    // 인증 성공 후 리다이렉트할 프론트엔드 URL
     private static final String REDIRECT_URI = "http://localhost:5173/";
 
     public OAuth2AuthenticationSuccessHandler(
@@ -45,26 +45,26 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             HttpServletResponse response,
             Authentication authentication) throws IOException, ServletException {
 
-        // Get the Account entity directly from the Authentication object
+        // Authentication 객체에서 직접 Account 엔티티 가져오기
         Account account = (Account) authentication.getPrincipal();
 
-        // Generate tokens
+        // 토큰 생성
         String accessToken = tokenProvider.createAccessToken(account.getId());
         String refreshToken = tokenProvider.createRefreshToken(account.getId());
 
-        // Store refresh token in Redis
+        // Redis에 리프레시 토큰 저장
         redisTokenService.storeRefreshToken(account.getId(), refreshToken);
 
-        // Set refresh token as HttpOnly cookie
+        // 리프레시 토큰을 HttpOnly 쿠키로 설정
         jakarta.servlet.http.Cookie refreshTokenCookie = new jakarta.servlet.http.Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge((int) (jwtProperties.getRefreshTokenExpirationMs() / 1000));
-        // In production, you might want to set secure flag to true
+        // 프로덕션 환경에서는 secure 플래그를 true로 설정하는 것이 좋습니다
         // refreshTokenCookie.setSecure(true);
         response.addCookie(refreshTokenCookie);
 
-        // Build redirect URL with access token only
+        // 액세스 토큰만 포함된 리다이렉트 URL 생성
         String targetUrl = UriComponentsBuilder.fromUriString(REDIRECT_URI)
                 .queryParam("accessToken", accessToken)
                 .build().toUriString();
@@ -72,5 +72,5 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
 
-    // Removed unused methods as we now get the Account directly from the Authentication object
+    // Authentication 객체에서 직접 Account를 가져오므로 사용하지 않는 메서드 제거
 }

@@ -51,10 +51,9 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
 
-    public SecurityConfig(
-            JwtAuthenticationFilter jwtAuthenticationFilter,
-            CustomOAuth2UserService customOAuth2UserService,
-            OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler) {
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
+                          CustomOAuth2UserService customOAuth2UserService,
+                          OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.customOAuth2UserService = customOAuth2UserService;
         this.oAuth2AuthenticationSuccessHandler = oAuth2AuthenticationSuccessHandler;
@@ -67,49 +66,41 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Swagger UI
-                        .requestMatchers(
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        // OAuth2 endpoints
-                        .requestMatchers(
-                                "/oauth2/**",
-                                "/auth/refresh-token"
-                        ).permitAll()
-                        // Public endpoints
+                        // Swagger 문서 공개
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+
+                        // OAuth2 인증 흐름 관련 엔드포인트 공개
+                        .requestMatchers("/oauth2/**", "/auth/refresh-token").permitAll()
+
+                        // 게시글 조회는 전체 공개
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
-                        // Protected endpoints
+
+                        // 게시글 작성/수정/삭제는 ADMIN만 가능
                         .requestMatchers(HttpMethod.POST, "/posts/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/posts/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/posts/**").hasRole("ADMIN")
-                        // Default
+
+                        // 계정 정보 등 기타 요청은 인증 필요
+                        .requestMatchers("/api/account/**").authenticated()
+
+                        // 그 외 모든 요청도 인증 필요
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
-                        )
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oAuth2AuthenticationSuccessHandler)
-                        .authorizationEndpoint(authorization -> authorization
-                                .baseUri("/oauth2/authorization")
-                        )
-                        .redirectionEndpoint(redirection -> redirection
-                                .baseUri("/oauth2/callback/*")
-                        )
+                        .authorizationEndpoint(authorization -> authorization.baseUri("/oauth2/authorization"))
+                        .redirectionEndpoint(redirection -> redirection.baseUri("/oauth2/callback/*"))
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .headers(headers -> headers
-                        .xssProtection(xss -> xss
-                                .headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                        .xssProtection(xss -> xss.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
                         .contentTypeOptions(contentTypeOptions -> contentTypeOptions.disable())
                         .frameOptions(frameOptions -> frameOptions.deny())
-                        .contentSecurityPolicy(csp -> csp
-                                .policyDirectives("default-src 'self'; script-src 'self'; object-src 'none'; " +
-                                        "style-src 'self'; img-src 'self' data:; " +
-                                        "frame-ancestors 'none'; frame-src 'none'; " +
-                                        "connect-src 'self'; font-src 'self'"))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'self'; script-src 'self'; object-src 'none'; style-src 'self'; img-src 'self' data:; " +
+                                        "frame-ancestors 'none'; frame-src 'none'; connect-src 'self'; font-src 'self'"
+                        ))
                 );
 
         return http.build();
