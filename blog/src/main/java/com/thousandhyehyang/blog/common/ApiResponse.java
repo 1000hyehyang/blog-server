@@ -10,8 +10,17 @@ public class ApiResponse<T> {
     @Schema(description = "응답 데이터")
     private final T data;
 
+    @Schema(description = "응답 메시지")
+    private final String message;
+
     public ApiResponse(T data) {
         this.data = data;
+        this.message = null;
+    }
+
+    public ApiResponse(T data, String message) {
+        this.data = data;
+        this.message = message;
     }
 
     public boolean isSuccess() {
@@ -20,5 +29,21 @@ public class ApiResponse<T> {
 
     public T getData() {
         return data;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(data);
+    }
+
+    public static <T> ApiResponse<T> success(T data, String message) {
+        return new ApiResponse<>(data, message);
+    }
+
+    public static <T> ApiResponse<T> error(String message) {
+        return new ApiResponse<>(null, message);
     }
 }

@@ -5,6 +5,14 @@ spring:
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      username: default
+      password: ${REDIS_PASSWORD}
+      ssl:
+        enabled: true
 
   jpa:
     hibernate:
