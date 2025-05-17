@@ -72,6 +72,9 @@ public class SecurityConfig {
                         // OAuth2 인증 흐름 관련 엔드포인트 공개
                         .requestMatchers("/oauth2/**", "/auth/refresh-token").permitAll()
 
+                        // 헬스 체크 엔드포인트 공개
+                        .requestMatchers("/health/**").permitAll()
+
                         // 게시글 조회는 전체 공개
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
 
