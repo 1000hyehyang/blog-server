@@ -6,6 +6,7 @@ import com.thousandhyehyang.blog.repository.AccountRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -22,21 +23,19 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final TokenProvider tokenProvider;
     private final RedisTokenService redisTokenService;
-    private final AccountRepository accountRepository;
     private final JwtProperties jwtProperties;
-
-    // 인증 성공 후 리다이렉트할 프론트엔드 URL
-    private static final String REDIRECT_URI = "http://localhost:5173/";
+    private final String redirectUri;
 
     public OAuth2AuthenticationSuccessHandler(
             TokenProvider tokenProvider,
             RedisTokenService redisTokenService,
-            AccountRepository accountRepository,
-            JwtProperties jwtProperties) {
+            JwtProperties jwtProperties,
+            @Value("${spring.app.oauth2.redirect-uri}") String redirectUri
+    ) {
         this.tokenProvider = tokenProvider;
         this.redisTokenService = redisTokenService;
-        this.accountRepository = accountRepository;
         this.jwtProperties = jwtProperties;
+        this.redirectUri = redirectUri;
     }
 
     @Override
@@ -56,21 +55,18 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         redisTokenService.storeRefreshToken(account.getId(), refreshToken);
 
         // 리프레시 토큰을 HttpOnly 쿠키로 설정
-        jakarta.servlet.http.Cookie refreshTokenCookie = new jakarta.servlet.http.Cookie("refreshToken", refreshToken);
+        Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge((int) (jwtProperties.getRefreshTokenExpirationMs() / 1000));
-        // 프로덕션 환경에서는 secure 플래그를 true로 설정하는 것이 좋습니다
-        // refreshTokenCookie.setSecure(true);
+        // refreshTokenCookie.setSecure(true); // 프로덕션에선 활성화 추천
         response.addCookie(refreshTokenCookie);
 
         // 액세스 토큰만 포함된 리다이렉트 URL 생성
-        String targetUrl = UriComponentsBuilder.fromUriString(REDIRECT_URI)
+        String targetUrl = UriComponentsBuilder.fromUriString(redirectUri)
                 .queryParam("accessToken", accessToken)
                 .build().toUriString();
 
         getRedirectStrategy().sendRedirect(request, response, targetUrl);
     }
-
-    // Authentication 객체에서 직접 Account를 가져오므로 사용하지 않는 메서드 제거
 }
