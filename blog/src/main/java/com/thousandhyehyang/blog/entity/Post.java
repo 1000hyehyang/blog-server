@@ -16,6 +16,9 @@ public class Post extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Column(nullable = false, length = 100)
     private String title;
 
@@ -44,19 +47,23 @@ public class Post extends BaseEntity {
 
     protected Post() {}
 
-    public Post(String title, String category, String content, String html, String thumbnailUrl, String author, List<String> tags) {
+    public Post(String title, String category, String content, String html, String thumbnailUrl, String author) {
         this.title = title;
         this.category = category;
         this.content = content;
         this.html = html;
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
+    }
 
-        if (tags != null) {
-            tags.stream()
-                    .filter(tag -> !tag.isEmpty())    // 빈 문자열 제거
-                    .distinct()                             // 중복 제거
-                    .forEach(tag -> this.postTags.add(new PostTag(this, tag)));
+    /**
+     * 태그를 추가합니다.
+     * 
+     * @param tag 추가할 태그
+     */
+    public void addTag(String tag) {
+        if (tag != null && !tag.isEmpty()) {
+            this.postTags.add(new PostTag(this, tag));
         }
     }
 

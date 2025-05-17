@@ -41,9 +41,17 @@ public class PostService {
                 request.content(),
                 request.html(),
                 request.thumbnailUrl(),
-                author,
-                request.tags()
+                author
         );
+
+        // 태그 처리 로직 (비즈니스 로직을 서비스 계층으로 이동)
+        if (request.tags() != null) {
+            request.tags().stream()
+                    .filter(tag -> tag != null && !tag.isEmpty())  // 빈 문자열 제거
+                    .distinct()                                    // 중복 제거
+                    .forEach(post::addTag);                        // 태그 추가
+        }
+
         Post savedPost = postRepository.save(post);
 
         // 썸네일이 있는 경우 게시글과 연결

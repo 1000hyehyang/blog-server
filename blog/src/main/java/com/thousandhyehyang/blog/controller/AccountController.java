@@ -5,6 +5,8 @@ import com.thousandhyehyang.blog.common.ApiResponse;
 import com.thousandhyehyang.blog.dto.account.NicknameUpdateRequest;
 import com.thousandhyehyang.blog.entity.Account;
 import com.thousandhyehyang.blog.repository.AccountRepository;
+import com.thousandhyehyang.blog.service.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,10 +22,12 @@ import java.util.Optional;
 public class AccountController {
 
     private final AccountRepository accountRepository;
+    private final AccountService accountService;
     private Logger log;
 
-    public AccountController(AccountRepository accountRepository) {
+    public AccountController(AccountRepository accountRepository, AccountService accountService) {
         this.accountRepository = accountRepository;
+        this.accountService = accountService;
     }
 
     /**
@@ -33,7 +37,7 @@ public class AccountController {
      */
     @PutMapping("/nickname")
     public ResponseEntity<ApiResponse<Map<String, String>>> updateNickname(
-            @RequestBody NicknameUpdateRequest request, 
+            @Valid @RequestBody NicknameUpdateRequest request, 
             @AuthenticationPrincipal Account account) {
 
         // 닉네임 중복 검사
@@ -45,11 +49,11 @@ public class AccountController {
             }
         }
 
-        account.updateNickname(request.getNickname());
-        accountRepository.save(account);
+        // 서비스 계층을 통해 닉네임 업데이트
+        Account updatedAccount = accountService.updateNickname(account.getId(), request.getNickname());
 
         Map<String, String> data = new HashMap<>();
-        data.put("nickname", account.getNickname());
+        data.put("nickname", updatedAccount.getNickname());
 
         return ResponseEntity.ok(ApiResponse.success(data, "Nickname updated successfully"));
     }
@@ -65,13 +69,16 @@ public class AccountController {
             return ResponseEntity.status(401).body(ApiResponse.error("로그인이 필요합니다."));
         }
 
+        // 서비스 계층을 통해 계정 정보 조회
+        Account accountDetails = accountService.getAccountById(account.getId());
+
         Map<String, Object> data = new HashMap<>();
-        data.put("id", account.getId());
-        data.put("email", account.getEmail());
-        data.put("name", account.getName());
-        data.put("nickname", account.getNickname());
-        data.put("profileImage", account.getProfileImage());
-        data.put("role", account.getRole());
+        data.put("id", accountDetails.getId());
+        data.put("email", accountDetails.getEmail());
+        data.put("name", accountDetails.getName());
+        data.put("nickname", accountDetails.getNickname());
+        data.put("profileImage", accountDetails.getProfileImage());
+        data.put("role", accountDetails.getRole());
 
         return ResponseEntity.ok(ApiResponse.success(data));
     }

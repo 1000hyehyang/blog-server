@@ -120,6 +120,7 @@ public class FileUploadService {
      * @return 파일 내용과 메타데이터
      * @throws FileUploadException 파일을 찾을 수 없는 경우
      */
+    @Transactional(readOnly = true)
     public byte[] downloadFile(Long id) {
         FileMetadata metadata = fileMetadataRepository.findById(id)
                 .orElseThrow(() -> new FileUploadException("파일을 찾을 수 없습니다."));
@@ -143,6 +144,7 @@ public class FileUploadService {
      * @return 파일 메타데이터
      * @throws FileUploadException 파일을 찾을 수 없는 경우
      */
+    @Transactional(readOnly = true)
     public FileMetadata getFileMetadata(Long id) {
         return fileMetadataRepository.findById(id)
                 .orElseThrow(() -> new FileUploadException("파일을 찾을 수 없습니다."));
