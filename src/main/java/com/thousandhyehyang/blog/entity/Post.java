@@ -110,4 +110,36 @@ public class Post extends BaseEntity {
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
+
+    /**
+     * 게시글 내용 업데이트
+     * 
+     * @param title 새 제목 (null인 경우 업데이트하지 않음)
+     * @param category 새 카테고리 (null인 경우 업데이트하지 않음)
+     * @param content 새 내용 (null인 경우 업데이트하지 않음)
+     * @param html 새 HTML 내용 (null인 경우 업데이트하지 않음)
+     * @param thumbnailUrl 새 썸네일 URL (null인 경우 업데이트하지 않음)
+     */
+    public void update(String title, String category, String content, String html, String thumbnailUrl) {
+        if (title != null) {
+            this.title = title;
+        }
+        if (category != null) {
+            this.category = category;
+        }
+        if (content != null) {
+            this.content = content;
+        }
+        if (html != null) {
+            this.html = html;
+        }
+        this.thumbnailUrl = thumbnailUrl; // thumbnailUrl can be null
+    }
+
+    /**
+     * 게시글의 모든 태그를 제거합니다.
+     */
+    public void clearTags() {
+        this.postTags.clear();
+    }
 }

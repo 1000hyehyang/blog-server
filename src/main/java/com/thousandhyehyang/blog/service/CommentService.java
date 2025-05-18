@@ -70,16 +70,29 @@ public class CommentService {
     /**
      * 댓글 수정
      *
+     * @param postId 게시글 ID
      * @param commentId 댓글 ID
      * @param request 댓글 수정 요청
      * @return 수정된 댓글 정보
+     * @throws PostNotFoundException 게시글을 찾을 수 없는 경우
      * @throws CommentNotFoundException 댓글을 찾을 수 없는 경우
+     * @throws IllegalArgumentException 댓글이 해당 게시글에 속하지 않는 경우
      */
     @Transactional
-    public CommentResponse updateComment(Long commentId, CommentUpdateRequest request) {
+    public CommentResponse updateComment(Long postId, Long commentId, CommentUpdateRequest request) {
+        // 게시글 존재 여부 확인
+        if (!postRepository.existsById(postId)) {
+            throw new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + postId);
+        }
+
         // 댓글 조회
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("댓글을 찾을 수 없습니다. ID: " + commentId));
+
+        // 댓글이 해당 게시글에 속하는지 확인
+        if (!comment.getPost().getId().equals(postId)) {
+            throw new IllegalArgumentException("해당 게시글에 속한 댓글이 아닙니다. 게시글 ID: " + postId + ", 댓글 ID: " + commentId);
+        }
 
         // 댓글 업데이트
         comment.update(
@@ -98,14 +111,26 @@ public class CommentService {
     /**
      * 댓글 삭제
      *
+     * @param postId 게시글 ID
      * @param commentId 댓글 ID
+     * @throws PostNotFoundException 게시글을 찾을 수 없는 경우
      * @throws CommentNotFoundException 댓글을 찾을 수 없는 경우
+     * @throws IllegalArgumentException 댓글이 해당 게시글에 속하지 않는 경우
      */
     @Transactional
-    public void deleteComment(Long commentId) {
-        // 댓글 존재 여부 확인
-        if (!commentRepository.existsById(commentId)) {
-            throw new CommentNotFoundException("댓글을 찾을 수 없습니다. ID: " + commentId);
+    public void deleteComment(Long postId, Long commentId) {
+        // 게시글 존재 여부 확인
+        if (!postRepository.existsById(postId)) {
+            throw new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + postId);
+        }
+
+        // 댓글 조회
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("댓글을 찾을 수 없습니다. ID: " + commentId));
+
+        // 댓글이 해당 게시글에 속하는지 확인
+        if (!comment.getPost().getId().equals(postId)) {
+            throw new IllegalArgumentException("해당 게시글에 속한 댓글이 아닙니다. 게시글 ID: " + postId + ", 댓글 ID: " + commentId);
         }
 
         // 댓글 삭제

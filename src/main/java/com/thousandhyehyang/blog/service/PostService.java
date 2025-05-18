@@ -3,6 +3,7 @@ package com.thousandhyehyang.blog.service;
 import com.thousandhyehyang.blog.dto.PostCreateRequest;
 import com.thousandhyehyang.blog.dto.PostDetailResponse;
 import com.thousandhyehyang.blog.dto.PostSummaryResponse;
+import com.thousandhyehyang.blog.dto.PostUpdateRequest;
 import com.thousandhyehyang.blog.entity.Account;
 import com.thousandhyehyang.blog.entity.FileMetadata;
 import com.thousandhyehyang.blog.entity.Post;
@@ -16,6 +17,8 @@ import com.thousandhyehyang.blog.repository.PostRepository;
 import com.thousandhyehyang.blog.util.HtmlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -165,6 +168,12 @@ public class PostService {
     private void processThumbnail(Post post, String thumbnailUrl) {
         if (thumbnailUrl != null && !thumbnailUrl.isEmpty()) {
             associateFileWithPost(post, thumbnailUrl, "THUMBNAIL");
+            // Ensure the thumbnailUrl is set on the Post entity and save it
+            if (post.getThumbnailUrl() == null || !post.getThumbnailUrl().equals(thumbnailUrl)) {
+                post.update(null, null, null, null, thumbnailUrl);
+                postRepository.save(post);
+                log.debug("썸네일 URL이 게시글에 저장됨: 게시글_ID={}, 썸네일_URL={}", post.getId(), thumbnailUrl);
+            }
         }
     }
 
@@ -289,17 +298,30 @@ public class PostService {
 
     /**
      * 최근 게시글 목록 조회
+     * 최근에 작성된 게시글을 조회하여 요약 정보로 반환합니다.
+     *
+     * @param limit 조회할 게시글 수 (기본값: 10)
+     * @return 최근 게시글의 요약 정보 목록
+     */
+    @Transactional(readOnly = true)
+    public List<PostSummaryResponse> getRecentPosts(int limit) {
+        // 최근 게시글 조회 후 DTO로 변환
+        Pageable pageable = PageRequest.of(0, limit);
+        return postRepository.findRecentPosts(pageable)
+                .stream()
+                .map(PostSummaryResponse::from)
+                .toList();
+    }
+
+    /**
+     * 최근 게시글 목록 조회 (기본 10개)
      * 최근에 작성된 게시글 10개를 조회하여 요약 정보로 반환합니다.
      *
      * @return 최근 게시글 10개의 요약 정보 목록
      */
     @Transactional(readOnly = true)
     public List<PostSummaryResponse> getRecentPosts() {
-        // 최근 게시글 10개 조회 후 DTO로 변환
-        return postRepository.findTop10ByOrderByCreatedAtDesc()
-                .stream()
-                .map(PostSummaryResponse::from)
-                .toList();
+        return getRecentPosts(10);
     }
 
     /**
@@ -335,6 +357,62 @@ public class PostService {
 
         // 게시글과 파일 정보를 DTO로 변환하여 반환
         return PostDetailResponse.from(post, fileMappings);
+    }
+
+    /**
+     * 게시글 수정
+     * 게시글의 내용을 수정하고, 태그와 파일 연결을 업데이트합니다.
+     *
+     * @param id 수정할 게시글의 ID
+     * @param request 게시글 수정 요청 정보
+     * @return 수정된 게시글 상세 정보
+     * @throws PostNotFoundException 게시글을 찾을 수 없는 경우
+     * @throws AuthenticationException 인증되지 않은 사용자가 접근한 경우
+     */
+    @Transactional
+    public PostDetailResponse updatePost(Long id, PostUpdateRequest request) {
+        // 현재 사용자 닉네임 가져오기
+        String currentUserNickname = getCurrentUserNickname();
+
+        // 게시글 조회
+        Post post = getPostById(id);
+
+        // 작성자 확인 (작성자만 수정 가능)
+        if (!post.getAuthor().equals(currentUserNickname)) {
+            throw new AuthenticationException("게시글 수정 권한이 없습니다.");
+        }
+
+        // 게시글 내용 업데이트
+        post.update(
+            request.title(),
+            request.category(),
+            request.content(),
+            request.html(),
+            request.thumbnailUrl()
+        );
+
+        // 태그 처리 (기존 태그 삭제 후 새 태그 추가)
+        post.clearTags();
+        processTags(post, request.tags());
+
+        // 파일 연결 처리
+        // 기존 파일 연결은 유지하고, 새로운 파일만 연결
+        if (request.html() != null) {
+            associateFilesFromHtml(post, request.html());
+        }
+
+        // 썸네일 처리
+        if (request.thumbnailUrl() != null) {
+            processThumbnail(post, request.thumbnailUrl());
+        }
+
+        // 변경사항 저장
+        Post updatedPost = postRepository.save(post);
+        log.info("게시글 수정 완료: ID={}", id);
+
+        // 수정된 게시글 상세 정보 반환
+        List<PostFileMapping> fileMappings = postFileMappingRepository.findByPost(updatedPost);
+        return PostDetailResponse.from(updatedPost, fileMappings);
     }
 
     /**

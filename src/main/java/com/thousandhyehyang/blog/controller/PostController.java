@@ -4,6 +4,7 @@ import com.thousandhyehyang.blog.common.ApiResponse;
 import com.thousandhyehyang.blog.dto.PostCreateRequest;
 import com.thousandhyehyang.blog.dto.PostDetailResponse;
 import com.thousandhyehyang.blog.dto.PostSummaryResponse;
+import com.thousandhyehyang.blog.dto.PostUpdateRequest;
 import com.thousandhyehyang.blog.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -60,18 +61,22 @@ public class PostController {
 
     /**
      * 최근 게시글 목록 조회 API
-     * 최근에 작성된 게시글 10개의 요약 정보를 조회합니다.
+     * 최근에 작성된 게시글의 요약 정보를 조회합니다.
      * 
-     * @return 최근 게시글 10개의 요약 정보 목록
+     * @param limit 조회할 게시글 수 (기본값: 10)
+     * @return 최근 게시글의 요약 정보 목록
      */
     @Operation(
             summary = "최근 게시글 목록 조회",
-            description = "최근에 작성된 게시글 10개를 조회합니다."
+            description = "최근에 작성된 게시글을 조회합니다. limit 파라미터로 조회할 게시글 수를 지정할 수 있습니다."
     )
     @GetMapping
-    public ResponseEntity<ApiResponse<List<PostSummaryResponse>>> getRecentPosts() {
+    public ResponseEntity<ApiResponse<List<PostSummaryResponse>>> getRecentPosts(
+            @Parameter(description = "조회할 게시글 수 (기본값: 10)", example = "10")
+            @RequestParam(required = false, defaultValue = "10") int limit
+    ) {
         // 최근 게시글 목록 조회 및 반환
-        List<PostSummaryResponse> posts = postService.getRecentPosts();
+        List<PostSummaryResponse> posts = postService.getRecentPosts(limit);
         return ResponseEntity.ok(new ApiResponse<>(posts));
     }
 
@@ -94,6 +99,30 @@ public class PostController {
         // 게시글 상세 정보 조회 및 반환
         PostDetailResponse postDetail = postService.getPostDetail(id);
         return ResponseEntity.ok(new ApiResponse<>(postDetail));
+    }
+
+    /**
+     * 게시글 수정 API
+     * 게시글 ID로 게시글을 수정합니다.
+     * 
+     * @param id 수정할 게시글의 ID
+     * @param request 게시글 수정 요청 정보
+     * @return 수정된 게시글 상세 정보
+     */
+    @Operation(
+            summary = "게시글 수정",
+            description = "게시글 ID로 게시글을 수정합니다. 게시글과 연결된 파일 중 다른 게시글에서 사용하지 않는 파일도 함께 삭제됩니다."
+    )
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<PostDetailResponse>> updatePost(
+            @Parameter(description = "게시글 ID", required = true)
+            @PathVariable Long id,
+            @Parameter(description = "게시글 수정 요청 정보", required = true)
+            @Valid @RequestBody PostUpdateRequest request
+    ) {
+        // 게시글 수정 및 상세 정보 반환
+        PostDetailResponse updatedPost = postService.updatePost(id, request);
+        return ResponseEntity.ok(new ApiResponse<>(updatedPost));
     }
 
     /**
