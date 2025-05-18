@@ -9,7 +9,6 @@ import com.thousandhyehyang.blog.entity.FileMetadata;
 import com.thousandhyehyang.blog.entity.Post;
 import com.thousandhyehyang.blog.entity.PostFileMapping;
 import com.thousandhyehyang.blog.exception.AuthenticationException;
-import com.thousandhyehyang.blog.exception.DuplicateFileMappingException;
 import com.thousandhyehyang.blog.exception.PostNotFoundException;
 import com.thousandhyehyang.blog.repository.FileMetadataRepository;
 import com.thousandhyehyang.blog.repository.PostFileMappingRepository;
@@ -180,12 +179,11 @@ public class PostService {
     /**
      * 파일을 게시글과 연결
      * 파일 URL을 기반으로 파일 메타데이터를 찾아 게시글과 연결합니다.
-     * 이미 연결된 파일인 경우 중복 매핑 예외를 발생시킵니다.
+     * 이미 연결된 파일인 경우 중복 매핑을 무시하고 계속 진행합니다.
      *
      * @param post          파일과 연결할 게시글
      * @param fileUrl       파일의 URL
      * @param referenceType 참조 유형 (예: "THUMBNAIL", "IMAGE", "VIDEO", "DOCUMENT")
-     * @throws DuplicateFileMappingException 이미 동일한 파일이 동일한 참조 유형으로 연결된 경우
      */
     private void associateFileWithPost(Post post, String fileUrl, String referenceType) {
         // 파일 URL로 메타데이터 조회
@@ -198,29 +196,32 @@ public class PostService {
 
         FileMetadata fileMetadata = fileMetadataOpt.get();
 
-        // 중복 매핑 확인 및 예외 처리
-        checkDuplicateFileMapping(post, fileMetadata, referenceType, fileUrl);
-
-        // 게시글-파일 매핑 생성 및 저장
-        createAndSaveFileMapping(post, fileMetadata, referenceType);
+        // 중복 매핑 확인 - 중복이면 건너뜀
+        boolean isDuplicate = checkDuplicateFileMapping(post, fileMetadata, referenceType, fileUrl);
+        if (!isDuplicate) {
+            // 중복이 아닌 경우에만 게시글-파일 매핑 생성 및 저장
+            createAndSaveFileMapping(post, fileMetadata, referenceType);
+        }
     }
 
     /**
      * 중복 파일 매핑 확인
      * 이미 동일한 파일이 동일한 참조 유형으로 연결되어 있는지 확인합니다.
+     * 중복 매핑이 발견된 경우 로그만 남기고 계속 진행합니다.
      *
      * @param post 게시글
      * @param fileMetadata 파일 메타데이터
      * @param referenceType 참조 유형
      * @param fileUrl 파일 URL (로깅용)
-     * @throws DuplicateFileMappingException 중복 매핑이 발견된 경우
+     * @return 중복 매핑이 발견되었는지 여부 (true: 중복 발견, false: 중복 없음)
      */
-    private void checkDuplicateFileMapping(Post post, FileMetadata fileMetadata, String referenceType, String fileUrl) {
+    private boolean checkDuplicateFileMapping(Post post, FileMetadata fileMetadata, String referenceType, String fileUrl) {
         if (postFileMappingRepository.existsByPostAndFileAndReferenceType(post, fileMetadata, referenceType)) {
-            log.debug("중복 파일 매핑 감지: 게시글_ID={}, 파일_URL={}, 참조_유형={}", 
+            log.debug("중복 파일 매핑 감지: 게시글_ID={}, 파일_URL={}, 참조_유형={} - 무시하고 계속 진행", 
                     post.getId(), fileUrl, referenceType);
-            throw new DuplicateFileMappingException(post.getId(), fileMetadata.getId(), referenceType);
+            return true;
         }
+        return false;
     }
 
     /**

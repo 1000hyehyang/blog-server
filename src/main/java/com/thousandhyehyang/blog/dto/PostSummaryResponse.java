@@ -2,12 +2,15 @@ package com.thousandhyehyang.blog.dto;
 
 import com.thousandhyehyang.blog.entity.Post;
 
+import java.time.LocalDateTime;
+
 public record PostSummaryResponse(
         Long id,
         String title,
         String category,
         String content,
-        String date,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt,
         String thumbnailUrl
 ) {
     public static PostSummaryResponse from(Post post) {
@@ -16,7 +19,8 @@ public record PostSummaryResponse(
                 post.getTitle(),
                 post.getCategory(),
                 post.getContent(),
-                post.getCreatedAt().toString(),
+                post.getCreatedAt(),
+                post.getUpdatedAt(),
                 post.getThumbnailUrl()
         );
     }
