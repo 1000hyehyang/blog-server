@@ -28,6 +28,8 @@ public class HealthCheckController {
         data.put("status", "UP");
         data.put("timestamp", System.currentTimeMillis());
 
+        System.out.println("서버 상태: " + data);
+
         return ResponseEntity.ok(ApiResponse.success(data, "Server is running"));
     }
 }
