@@ -78,8 +78,11 @@ public class SecurityConfig {
                         // 게시글 조회는 전체 공개
                         .requestMatchers(HttpMethod.GET, "/posts/**").permitAll()
 
+                        // 댓글 작성은 익명 사용자도 가능
+                        .requestMatchers(HttpMethod.POST, "/posts/*/comments").permitAll()
+
                         // 게시글 작성/수정/삭제는 ADMIN만 가능
-                        .requestMatchers(HttpMethod.POST, "/posts/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/posts").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/posts/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/posts/**").hasRole("ADMIN")
 

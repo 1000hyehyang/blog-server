@@ -38,6 +38,16 @@ public interface PostFileMappingRepository extends JpaRepository<PostFileMapping
     Optional<PostFileMapping> findByPostAndFile(Post post, FileMetadata file);
 
     /**
+     * 게시글, 파일, 참조 유형으로 특정 매핑 찾기
+     */
+    Optional<PostFileMapping> findByPostAndFileAndReferenceType(Post post, FileMetadata file, String referenceType);
+
+    /**
+     * 게시글, 파일, 참조 유형으로 매핑 존재 여부 확인
+     */
+    boolean existsByPostAndFileAndReferenceType(Post post, FileMetadata file, String referenceType);
+
+    /**
      * 게시글과 참조 유형으로 모든 매핑 찾기
      */
     List<PostFileMapping> findByPostAndReferenceType(Post post, String referenceType);
