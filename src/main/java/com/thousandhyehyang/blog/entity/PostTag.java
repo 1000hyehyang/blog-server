@@ -17,7 +17,8 @@ public class PostTag extends BaseEntity {
     @Column(name = "tag", nullable = false)
     private String tag;
 
-    protected PostTag() {}
+    protected PostTag() {
+    }
 
     public PostTag(Post post, String tag) {
         this.post = post;

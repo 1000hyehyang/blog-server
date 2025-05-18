@@ -28,8 +28,8 @@ public class FileUploadController {
     }
 
     @Operation(
-        summary = "썸네일 업로드", 
-        description = "썸네일 이미지를 업로드합니다. (jpg, jpeg, png, webp, gif, 최대 2MB)"
+            summary = "썸네일 업로드",
+            description = "썸네일 이미지를 업로드합니다. (jpg, jpeg, png, webp, gif, 최대 2MB)"
     )
     @PostMapping("/thumbnail")
     public ResponseEntity<ApiResponse<FileUploadResponse>> uploadThumbnail(
@@ -39,8 +39,8 @@ public class FileUploadController {
     }
 
     @Operation(
-        summary = "본문 이미지 업로드", 
-        description = "Tiptap 본문용 이미지를 업로드합니다. (jpg, jpeg, png, webp, gif, 최대 5MB)"
+            summary = "본문 이미지 업로드",
+            description = "Tiptap 본문용 이미지를 업로드합니다. (jpg, jpeg, png, webp, gif, 최대 5MB)"
     )
     @PostMapping("/editor-image")
     public ResponseEntity<ApiResponse<FileUploadResponse>> uploadEditorImage(
@@ -50,8 +50,8 @@ public class FileUploadController {
     }
 
     @Operation(
-        summary = "본문 영상 업로드", 
-        description = "Tiptap 본문용 영상을 업로드합니다. (mp4, webm, 최대 50MB)"
+            summary = "본문 영상 업로드",
+            description = "Tiptap 본문용 영상을 업로드합니다. (mp4, webm, 최대 50MB)"
     )
     @PostMapping("/editor-video")
     public ResponseEntity<ApiResponse<FileUploadResponse>> uploadEditorVideo(
@@ -61,8 +61,8 @@ public class FileUploadController {
     }
 
     @Operation(
-        summary = "문서 업로드", 
-        description = "문서 파일을 업로드합니다. (pdf, doc, docx, xls, xlsx, ppt, pptx, txt, 최대 10MB)"
+            summary = "문서 업로드",
+            description = "문서 파일을 업로드합니다. (pdf, doc, docx, xls, xlsx, ppt, pptx, txt, 최대 10MB)"
     )
     @PostMapping("/document")
     public ResponseEntity<ApiResponse<FileUploadResponse>> uploadDocument(
@@ -72,8 +72,8 @@ public class FileUploadController {
     }
 
     @Operation(
-        summary = "파일 다운로드", 
-        description = "파일 ID로 파일을 다운로드합니다."
+            summary = "파일 다운로드",
+            description = "파일 ID로 파일을 다운로드합니다."
     )
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> downloadFile(
@@ -87,14 +87,14 @@ public class FileUploadController {
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType(metadata.getContentType()))
                 .contentLength(metadata.getFileSize())
-                .header(HttpHeaders.CONTENT_DISPOSITION, 
+                .header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=\"" + metadata.getOriginalFilename() + "\"")
                 .body(resource);
     }
 
     @Operation(
-        summary = "파일 삭제", 
-        description = "파일 ID로 파일을 삭제합니다."
+            summary = "파일 삭제",
+            description = "파일 ID로 파일을 삭제합니다."
     )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFile(

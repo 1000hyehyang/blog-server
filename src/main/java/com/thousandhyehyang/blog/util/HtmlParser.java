@@ -26,7 +26,7 @@ public class HtmlParser {
 
     /**
      * HTML 콘텐츠에서 모든 미디어 URL 추출
-     * 
+     *
      * @param html 파싱할 HTML 콘텐츠
      * @return 미디어 타입별 URL 목록을 담은 맵
      */
@@ -41,8 +41,8 @@ public class HtmlParser {
 
     /**
      * 패턴을 사용하여 URL 추출
-     * 
-     * @param html 파싱할 HTML 콘텐츠
+     *
+     * @param html    파싱할 HTML 콘텐츠
      * @param pattern 추출에 사용할 패턴
      * @return 추출된 URL 목록
      */
@@ -62,7 +62,7 @@ public class HtmlParser {
 
     /**
      * HTML 콘텐츠에서 비디오 URL 추출
-     * 
+     *
      * @param html 파싱할 HTML 콘텐츠
      * @return 비디오 URL 목록
      */
@@ -80,7 +80,7 @@ public class HtmlParser {
 
     /**
      * HTML 콘텐츠에서 문서 URL 추출
-     * 
+     *
      * @param html 파싱할 HTML 콘텐츠
      * @return 문서 URL 목록
      */
@@ -100,20 +100,20 @@ public class HtmlParser {
 
     /**
      * URL이 문서일 가능성이 있는지 확인
-     * 
+     *
      * @param url 확인할 URL
      * @return URL이 문서일 가능성이 있으면 true
      */
     private static boolean isDocumentUrl(String url) {
         String lowerUrl = url.toLowerCase();
-        return lowerUrl.contains("/documents/") || 
-               lowerUrl.endsWith(".pdf") || 
-               lowerUrl.endsWith(".doc") || 
-               lowerUrl.endsWith(".docx") || 
-               lowerUrl.endsWith(".xls") || 
-               lowerUrl.endsWith(".xlsx") || 
-               lowerUrl.endsWith(".ppt") || 
-               lowerUrl.endsWith(".pptx") || 
-               lowerUrl.endsWith(".txt");
+        return lowerUrl.contains("/documents/") ||
+                lowerUrl.endsWith(".pdf") ||
+                lowerUrl.endsWith(".doc") ||
+                lowerUrl.endsWith(".docx") ||
+                lowerUrl.endsWith(".xls") ||
+                lowerUrl.endsWith(".xlsx") ||
+                lowerUrl.endsWith(".ppt") ||
+                lowerUrl.endsWith(".pptx") ||
+                lowerUrl.endsWith(".txt");
     }
 }

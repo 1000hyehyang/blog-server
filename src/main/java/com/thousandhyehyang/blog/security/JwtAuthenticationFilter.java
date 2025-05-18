@@ -21,6 +21,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Optional;
 
+/**
+ * JWT 인증 필터
+ * - 요청마다 실행되며, JWT 토큰을 검증하고 인증 정보를 SecurityContext에 저장함
+ */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -41,21 +45,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             String jwt = getJwtFromRequest(request);
-            System.out.println("🔐 Extracted JWT: " + jwt);
 
+            // 토큰이 존재하고 유효하며, access 토큰인 경우에만 처리
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt) && !tokenProvider.isRefreshToken(jwt)) {
                 Long accountId = tokenProvider.getUserIdFromToken(jwt);
-                System.out.println("✅ 토큰 유저 ID: " + accountId);
 
                 Optional<Account> accountOptional = accountRepository.findById(accountId);
                 if (accountOptional.isPresent()) {
                     Account account = accountOptional.get();
-                    logger.info("✅ Jwt 필터 - 인증 대상 계정 ID: {}", account.getId());
-                    logger.info("✅ Jwt 필터 - 인증 대상 권한: {}", account.getAuthorities());
 
-                    // Ensure attributes is initialized
                     if (account.getAttributes() == null) {
-                        logger.warn("Account attributes was null, initializing empty map");
                         account.setAttributes(new HashMap<>());
                     }
 
@@ -68,17 +67,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    System.out.println("✅ SecurityContext 설정 완료됨!");
-                } else {
-                    logger.warn("No account found for ID: {}", accountId);
                 }
             }
         } catch (Exception ex) {
-            logger.error("Could not set user authentication in security context", ex);
             ex.printStackTrace();
         }
 
-        System.out.println("✅ Jwt 필터 끝. 다음 필터로 넘깁니다.");
         filterChain.doFilter(request, response);
     }
 

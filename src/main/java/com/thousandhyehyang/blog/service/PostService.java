@@ -24,9 +24,9 @@ public class PostService {
     private final FileMetadataRepository fileMetadataRepository;
     private final PostFileMappingRepository postFileMappingRepository;
 
-    public PostService(PostRepository postRepository, 
-                      FileMetadataRepository fileMetadataRepository,
-                      PostFileMappingRepository postFileMappingRepository) {
+    public PostService(PostRepository postRepository,
+                       FileMetadataRepository fileMetadataRepository,
+                       PostFileMappingRepository postFileMappingRepository) {
         this.postRepository = postRepository;
         this.fileMetadataRepository = fileMetadataRepository;
         this.postFileMappingRepository = postFileMappingRepository;
@@ -67,9 +67,9 @@ public class PostService {
 
     /**
      * 파일을 게시글과 연결
-     * 
-     * @param post 파일과 연결할 게시글
-     * @param fileUrl 파일의 URL
+     *
+     * @param post          파일과 연결할 게시글
+     * @param fileUrl       파일의 URL
      * @param referenceType 참조 유형 (예: "THUMBNAIL", "CONTENT")
      */
     private void associateFileWithPost(Post post, String fileUrl, String referenceType) {
@@ -83,7 +83,7 @@ public class PostService {
 
     /**
      * HTML 콘텐츠에서 파일을 추출하여 게시글과 연결
-     * 
+     *
      * @param post 파일과 연결할 게시글
      * @param html 파일을 추출할 HTML 콘텐츠
      */
@@ -116,7 +116,7 @@ public class PostService {
 
     /**
      * ID로 게시글 조회
-     * 
+     *
      * @param id 조회할 게시글의 ID
      * @return 게시글
      * @throws IllegalArgumentException 게시글을 찾을 수 없는 경우
@@ -129,7 +129,7 @@ public class PostService {
 
     /**
      * ID로 게시글 상세 정보 조회
-     * 
+     *
      * @param id 조회할 게시글의 ID
      * @return 게시글 상세 정보 응답
      * @throws IllegalArgumentException 게시글을 찾을 수 없는 경우
@@ -143,7 +143,7 @@ public class PostService {
 
     /**
      * 게시글 소프트 삭제
-     * 
+     *
      * @param id 삭제할 게시글의 ID
      * @throws IllegalArgumentException 게시글을 찾을 수 없는 경우
      */

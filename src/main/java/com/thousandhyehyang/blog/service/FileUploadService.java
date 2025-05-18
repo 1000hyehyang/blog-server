@@ -115,7 +115,7 @@ public class FileUploadService {
 
     /**
      * ID로 파일 다운로드
-     * 
+     *
      * @param id 다운로드할 파일의 ID
      * @return 파일 내용과 메타데이터
      * @throws FileUploadException 파일을 찾을 수 없는 경우
@@ -128,9 +128,9 @@ public class FileUploadService {
         try {
             // Get the file from S3/R2
             return s3Client.getObject(req -> req
-                    .bucket(r2Properties.getBucket())
-                    .key(metadata.getStorageKey())
-                    .build())
+                            .bucket(r2Properties.getBucket())
+                            .key(metadata.getStorageKey())
+                            .build())
                     .readAllBytes();
         } catch (IOException e) {
             throw new FileUploadException("파일 다운로드 중 오류 발생: " + e.getMessage());
@@ -139,7 +139,7 @@ public class FileUploadService {
 
     /**
      * ID로 파일 메타데이터 조회
-     * 
+     *
      * @param id 파일의 ID
      * @return 파일 메타데이터
      * @throws FileUploadException 파일을 찾을 수 없는 경우
@@ -152,7 +152,7 @@ public class FileUploadService {
 
     /**
      * ID로 파일 삭제
-     * 
+     *
      * @param id 삭제할 파일의 ID
      * @throws FileUploadException 파일을 찾을 수 없는 경우
      */

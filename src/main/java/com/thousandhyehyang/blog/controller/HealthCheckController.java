@@ -19,6 +19,7 @@ public class HealthCheckController {
 
     /**
      * 서버 상태 확인 (ping)
+     *
      * @return 서버 상태 정보
      */
     @GetMapping("/ping")
@@ -26,7 +27,7 @@ public class HealthCheckController {
         Map<String, Object> data = new HashMap<>();
         data.put("status", "UP");
         data.put("timestamp", System.currentTimeMillis());
-        
+
         return ResponseEntity.ok(ApiResponse.success(data, "Server is running"));
     }
 }

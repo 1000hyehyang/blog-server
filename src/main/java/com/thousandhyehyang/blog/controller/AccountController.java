@@ -32,12 +32,13 @@ public class AccountController {
 
     /**
      * 닉네임 수정
+     *
      * @param request 새 닉네임 요청 DTO
      * @param account 인증된 사용자 계정
      */
     @PutMapping("/nickname")
     public ResponseEntity<ApiResponse<Map<String, String>>> updateNickname(
-            @Valid @RequestBody NicknameUpdateRequest request, 
+            @Valid @RequestBody NicknameUpdateRequest request,
             @AuthenticationPrincipal Account account) {
 
         // 닉네임 중복 검사
@@ -63,7 +64,6 @@ public class AccountController {
      */
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getProfile(@AuthenticationPrincipal Object principal) {
-        System.out.println("✅ principal class = " + (principal != null ? principal.getClass().getName() : "null"));
 
         if (!(principal instanceof Account account)) {
             return ResponseEntity.status(401).body(ApiResponse.error("로그인이 필요합니다."));
@@ -75,12 +75,10 @@ public class AccountController {
         Map<String, Object> data = new HashMap<>();
         data.put("id", accountDetails.getId());
         data.put("email", accountDetails.getEmail());
-        data.put("name", accountDetails.getName());
         data.put("nickname", accountDetails.getNickname());
         data.put("profileImage", accountDetails.getProfileImage());
         data.put("role", accountDetails.getRole());
 
         return ResponseEntity.ok(ApiResponse.success(data));
     }
-
 }

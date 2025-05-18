@@ -12,8 +12,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableConfigurationProperties({R2Properties.class, JwtProperties.class})
 public class BlogApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BlogApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BlogApplication.class, args);
+    }
 
 }

@@ -15,8 +15,8 @@ public class FileValidator {
     private static final List<String> IMAGE_TYPES = List.of("image/jpeg", "image/png", "image/webp", "image/gif");
     private static final List<String> VIDEO_TYPES = List.of("video/mp4", "video/webm");
     private static final List<String> DOCUMENT_TYPES = List.of(
-            "application/pdf", 
-            "application/msword", 
+            "application/pdf",
+            "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "application/vnd.ms-excel",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

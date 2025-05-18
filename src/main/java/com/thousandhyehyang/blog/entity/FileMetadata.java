@@ -42,7 +42,7 @@ public class FileMetadata extends BaseEntity {
     }
 
     // 모든 필수 필드를 포함한 생성자
-    public FileMetadata(String originalFilename, String storageKey, String contentType, 
+    public FileMetadata(String originalFilename, String storageKey, String contentType,
                         Long fileSize, UploadType uploadType, String publicUrl) {
         this.originalFilename = originalFilename;
         this.storageKey = storageKey;

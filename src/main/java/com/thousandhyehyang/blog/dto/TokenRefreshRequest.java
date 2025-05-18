@@ -8,8 +8,8 @@ import jakarta.validation.constraints.Pattern;
 public class TokenRefreshRequest {
 
     @NotBlank(message = "리프레시 토큰은 필수 입력값입니다.")
-    @Pattern(regexp = "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$", 
-             message = "유효한 JWT 토큰 형식이 아닙니다.")
+    @Pattern(regexp = "^[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_=]+\\.[A-Za-z0-9-_.+/=]*$",
+            message = "유효한 JWT 토큰 형식이 아닙니다.")
     @Schema(description = "리프레시 토큰", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
     private String refreshToken;
 

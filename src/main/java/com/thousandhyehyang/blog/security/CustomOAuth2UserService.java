@@ -95,8 +95,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     // OAuth2 사용자 정보를 위한 인터페이스
     interface OAuth2UserInfo {
         String getId();
+
         String getName();
+
         String getEmail();
+
         String getImageUrl();
     }
 

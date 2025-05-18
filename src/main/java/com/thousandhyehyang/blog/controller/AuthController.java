@@ -30,6 +30,7 @@ public class AuthController {
 
     /**
      * 액세스 토큰 재발급
+     *
      * @param refreshToken 쿠키에서 추출한 리프레시 토큰
      */
     @PostMapping("/refresh-token")
@@ -57,7 +58,8 @@ public class AuthController {
 
     /**
      * 로그아웃 처리 (리프레시 토큰 제거 및 쿠키 만료)
-     * @param account 인증된 사용자 계정
+     *
+     * @param account  인증된 사용자 계정
      * @param response HTTP 응답 객체
      */
     @PostMapping("/logout")

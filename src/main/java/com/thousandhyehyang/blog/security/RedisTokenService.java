@@ -21,7 +21,8 @@ public class RedisTokenService {
 
     /**
      * Stores a refresh token in Redis with the user ID as the key
-     * @param userId The user ID
+     *
+     * @param userId       The user ID
      * @param refreshToken The refresh token
      */
     public void storeRefreshToken(Long userId, String refreshToken) {
@@ -32,6 +33,7 @@ public class RedisTokenService {
 
     /**
      * Retrieves a refresh token from Redis
+     *
      * @param userId The user ID
      * @return The refresh token, or null if not found
      */
@@ -42,6 +44,7 @@ public class RedisTokenService {
 
     /**
      * Deletes a refresh token from Redis
+     *
      * @param userId The user ID
      */
     public void deleteRefreshToken(Long userId) {
@@ -51,7 +54,8 @@ public class RedisTokenService {
 
     /**
      * Validates a refresh token against the one stored in Redis
-     * @param userId The user ID
+     *
+     * @param userId       The user ID
      * @param refreshToken The refresh token to validate
      * @return true if the token is valid, false otherwise
      */
@@ -62,6 +66,7 @@ public class RedisTokenService {
 
     /**
      * Generates the Redis key for a user ID
+     *
      * @param userId The user ID
      * @return The Redis key
      */

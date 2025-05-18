@@ -13,7 +13,8 @@ import java.util.List;
 @Where(clause = "deleted = false")
 public class Post extends BaseEntity {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Version
@@ -45,7 +46,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostTag> postTags = new ArrayList<>();
 
-    protected Post() {}
+    protected Post() {
+    }
 
     public Post(String title, String category, String content, String html, String thumbnailUrl, String author) {
         this.title = title;
@@ -58,7 +60,7 @@ public class Post extends BaseEntity {
 
     /**
      * 태그를 추가합니다.
-     * 
+     *
      * @param tag 추가할 태그
      */
     public void addTag(String tag) {

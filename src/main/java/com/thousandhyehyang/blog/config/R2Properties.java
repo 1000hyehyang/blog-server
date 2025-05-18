@@ -18,33 +18,83 @@ public class R2Properties {
     private String documentPath = "documents/";
 
     // 게터 & 세터
-    public String getAccessKey() { return accessKey; }
-    public void setAccessKey(String accessKey) { this.accessKey = accessKey; }
+    public String getAccessKey() {
+        return accessKey;
+    }
 
-    public String getSecretKey() { return secretKey; }
-    public void setSecretKey(String secretKey) { this.secretKey = secretKey; }
+    public void setAccessKey(String accessKey) {
+        this.accessKey = accessKey;
+    }
 
-    public String getBucket() { return bucket; }
-    public void setBucket(String bucket) { this.bucket = bucket; }
+    public String getSecretKey() {
+        return secretKey;
+    }
 
-    public String getEndpoint() { return endpoint; }
-    public void setEndpoint(String endpoint) { this.endpoint = endpoint; }
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
 
-    public String getPublicUrl() { return publicUrl; }
-    public void setPublicUrl(String publicUrl) { this.publicUrl = publicUrl; }
+    public String getBucket() {
+        return bucket;
+    }
 
-    public String getRegion() { return region; }
-    public void setRegion(String region) { this.region = region; }
+    public void setBucket(String bucket) {
+        this.bucket = bucket;
+    }
 
-    public String getThumbnailPath() { return thumbnailPath; }
-    public void setThumbnailPath(String thumbnailPath) { this.thumbnailPath = thumbnailPath; }
+    public String getEndpoint() {
+        return endpoint;
+    }
 
-    public String getEditorImagePath() { return editorImagePath; }
-    public void setEditorImagePath(String editorImagePath) { this.editorImagePath = editorImagePath; }
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
 
-    public String getEditorVideoPath() { return editorVideoPath; }
-    public void setEditorVideoPath(String editorVideoPath) { this.editorVideoPath = editorVideoPath; }
+    public String getPublicUrl() {
+        return publicUrl;
+    }
 
-    public String getDocumentPath() { return documentPath; }
-    public void setDocumentPath(String documentPath) { this.documentPath = documentPath; }
+    public void setPublicUrl(String publicUrl) {
+        this.publicUrl = publicUrl;
+    }
+
+    public String getRegion() {
+        return region;
+    }
+
+    public void setRegion(String region) {
+        this.region = region;
+    }
+
+    public String getThumbnailPath() {
+        return thumbnailPath;
+    }
+
+    public void setThumbnailPath(String thumbnailPath) {
+        this.thumbnailPath = thumbnailPath;
+    }
+
+    public String getEditorImagePath() {
+        return editorImagePath;
+    }
+
+    public void setEditorImagePath(String editorImagePath) {
+        this.editorImagePath = editorImagePath;
+    }
+
+    public String getEditorVideoPath() {
+        return editorVideoPath;
+    }
+
+    public void setEditorVideoPath(String editorVideoPath) {
+        this.editorVideoPath = editorVideoPath;
+    }
+
+    public String getDocumentPath() {
+        return documentPath;
+    }
+
+    public void setDocumentPath(String documentPath) {
+        this.documentPath = documentPath;
+    }
 }

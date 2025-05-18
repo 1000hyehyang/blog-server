@@ -24,8 +24,8 @@ public record PostDetailResponse(
 ) {
     /**
      * Post 엔티티와 파일 매핑으로부터 PostDetailResponse 생성
-     * 
-     * @param post 게시글 엔티티
+     *
+     * @param post         게시글 엔티티
      * @param fileMappings 게시글의 파일 매핑
      * @return PostDetailResponse
      */
@@ -70,5 +70,6 @@ public record PostDetailResponse(
             String filename,
             String contentType,
             Long fileSize
-    ) {}
+    ) {
+    }
 }
