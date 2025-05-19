@@ -31,7 +31,7 @@ public class Post extends BaseEntity {
     private String content;
 
     @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String html;
 
     @Column
