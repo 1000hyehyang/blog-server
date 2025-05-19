@@ -81,6 +81,23 @@ public class PostController {
     }
 
     /**
+     * 임시저장 게시글 목록 조회 API
+     * 현재 로그인한 사용자가 임시저장한 게시글의 요약 정보를 조회합니다.
+     * 
+     * @return 임시저장 게시글의 요약 정보 목록
+     */
+    @Operation(
+            summary = "임시저장 게시글 목록 조회",
+            description = "현재 로그인한 사용자가 임시저장한 게시글을 조회합니다."
+    )
+    @GetMapping("/drafts")
+    public ResponseEntity<ApiResponse<List<PostSummaryResponse>>> getDraftPosts() {
+        // 임시저장 게시글 목록 조회 및 반환
+        List<PostSummaryResponse> draftPosts = postService.getDraftPosts();
+        return ResponseEntity.ok(new ApiResponse<>(draftPosts));
+    }
+
+    /**
      * 게시글 상세 조회 API
      * 게시글 ID로 게시글의 상세 정보를 조회합니다.
      * 

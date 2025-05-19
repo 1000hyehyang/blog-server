@@ -104,7 +104,8 @@ public class PostService {
                 request.content(),
                 request.html(),
                 request.thumbnailUrl(),
-                author
+                author,
+                request.draft()
         );
 
         // 태그 처리 로직
@@ -306,10 +307,31 @@ public class PostService {
      */
     @Transactional(readOnly = true)
     public List<PostSummaryResponse> getRecentPosts(int limit) {
-        // 최근 게시글 조회 후 DTO로 변환
+        // 최근 게시글 조회 후 DTO로 변환 (임시저장이 아닌 게시글만)
         Pageable pageable = PageRequest.of(0, limit);
         return postRepository.findRecentPosts(pageable)
                 .stream()
+                .filter(post -> !post.isDraft())
+                .map(PostSummaryResponse::from)
+                .toList();
+    }
+
+    /**
+     * 사용자의 임시저장 게시글 목록 조회
+     * 현재 로그인한 사용자가 임시저장한 게시글의 요약 정보를 조회합니다.
+     *
+     * @return 임시저장 게시글의 요약 정보 목록
+     */
+    @Transactional(readOnly = true)
+    public List<PostSummaryResponse> getDraftPosts() {
+        // 현재 사용자 닉네임 가져오기
+        String currentUserNickname = getCurrentUserNickname();
+
+        // 사용자의 임시저장 게시글 조회
+        List<Post> draftPosts = postRepository.findByAuthorAndDraftTrueOrderByCreatedAtDesc(currentUserNickname);
+
+        // 게시글 엔티티를 DTO로 변환하여 반환
+        return draftPosts.stream()
                 .map(PostSummaryResponse::from)
                 .toList();
     }
@@ -343,15 +365,25 @@ public class PostService {
     /**
      * ID로 게시글 상세 정보 조회
      * 게시글 정보와 연결된 파일 정보를 함께 조회하여 상세 정보로 반환합니다.
+     * 임시저장 게시글은 작성자만 조회할 수 있습니다.
      *
      * @param id 조회할 게시글의 ID
      * @return 게시글 상세 정보 응답 객체
      * @throws PostNotFoundException 게시글을 찾을 수 없는 경우
+     * @throws AuthenticationException 임시저장 게시글에 대한 접근 권한이 없는 경우
      */
     @Transactional(readOnly = true)
     public PostDetailResponse getPostDetail(Long id) {
         // 게시글 조회
         Post post = getPostById(id);
+
+        // 임시저장 게시글인 경우 작성자 확인
+        if (post.isDraft()) {
+            String currentUserNickname = getCurrentUserNickname();
+            if (!post.getAuthor().equals(currentUserNickname)) {
+                throw new AuthenticationException("임시저장 게시글은 작성자만 조회할 수 있습니다.");
+            }
+        }
 
         // 게시글과 연결된 파일 매핑 조회
         List<PostFileMapping> fileMappings = postFileMappingRepository.findByPost(post);
@@ -389,7 +421,8 @@ public class PostService {
             request.category(),
             request.content(),
             request.html(),
-            request.thumbnailUrl()
+            request.thumbnailUrl(),
+            request.draft()
         );
 
         // 태그 처리 (기존 태그 삭제 후 새 태그 추가)

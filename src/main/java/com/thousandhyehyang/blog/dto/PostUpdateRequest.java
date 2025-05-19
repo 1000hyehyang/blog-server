@@ -32,6 +32,9 @@ public record PostUpdateRequest(
         @Schema(description = "태그 목록", example = "[\"태그1\", \"태그2\"]")
         @Valid
         @NotNull(message = "태그 목록은 null이 될 수 없습니다. 빈 목록을 사용하세요.")
-        List<@Size(max = 20, message = "태그는 20자 이하로 입력해주세요.") String> tags
+        List<@Size(max = 20, message = "태그는 20자 이하로 입력해주세요.") String> tags,
+
+        @Schema(description = "임시저장 여부", example = "false")
+        Boolean draft
 ) {
 }

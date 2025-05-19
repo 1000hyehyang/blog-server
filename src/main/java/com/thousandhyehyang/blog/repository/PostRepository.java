@@ -14,4 +14,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @org.springframework.data.jpa.repository.Query(value = "SELECT p FROM Post p ORDER BY p.createdAt DESC")
     List<Post> findRecentPosts(org.springframework.data.domain.Pageable pageable);
+
+    // 임시저장 게시글 조회 메서드
+    List<Post> findByAuthorAndDraftIsTrue(String author);
+
+    // 작성자별 임시저장 게시글 조회 (최신순)
+    List<Post> findByAuthorAndDraftTrueOrderByCreatedAtDesc(String author);
+
+    // 작성자별 정식 게시글 조회 (최신순)
+    List<Post> findByAuthorAndDraftIsFalseOrderByCreatedAtDesc(String author);
 }

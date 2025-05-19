@@ -43,6 +43,9 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private boolean deleted = false;
 
+    @Column(nullable = false)
+    private boolean draft = false;
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostTag> postTags = new ArrayList<>();
 
@@ -50,12 +53,17 @@ public class Post extends BaseEntity {
     }
 
     public Post(String title, String category, String content, String html, String thumbnailUrl, String author) {
+        this(title, category, content, html, thumbnailUrl, author, false);
+    }
+
+    public Post(String title, String category, String content, String html, String thumbnailUrl, String author, boolean draft) {
         this.title = title;
         this.category = category;
         this.content = content;
         this.html = html;
         this.thumbnailUrl = thumbnailUrl;
         this.author = author;
+        this.draft = draft;
     }
 
     /**
@@ -111,6 +119,14 @@ public class Post extends BaseEntity {
         this.deleted = deleted;
     }
 
+    public boolean isDraft() {
+        return draft;
+    }
+
+    public void setDraft(boolean draft) {
+        this.draft = draft;
+    }
+
     /**
      * 게시글 내용 업데이트
      * 
@@ -121,6 +137,20 @@ public class Post extends BaseEntity {
      * @param thumbnailUrl 새 썸네일 URL (null인 경우 업데이트하지 않음)
      */
     public void update(String title, String category, String content, String html, String thumbnailUrl) {
+        update(title, category, content, html, thumbnailUrl, null);
+    }
+
+    /**
+     * 게시글 내용 업데이트 (임시저장 상태 포함)
+     * 
+     * @param title 새 제목 (null인 경우 업데이트하지 않음)
+     * @param category 새 카테고리 (null인 경우 업데이트하지 않음)
+     * @param content 새 내용 (null인 경우 업데이트하지 않음)
+     * @param html 새 HTML 내용 (null인 경우 업데이트하지 않음)
+     * @param thumbnailUrl 새 썸네일 URL (null인 경우 업데이트하지 않음)
+     * @param draft 임시저장 상태 (null인 경우 업데이트하지 않음)
+     */
+    public void update(String title, String category, String content, String html, String thumbnailUrl, Boolean draft) {
         if (title != null) {
             this.title = title;
         }
@@ -134,6 +164,9 @@ public class Post extends BaseEntity {
             this.html = html;
         }
         this.thumbnailUrl = thumbnailUrl; // thumbnailUrl can be null
+        if (draft != null) {
+            this.draft = draft;
+        }
     }
 
     /**
