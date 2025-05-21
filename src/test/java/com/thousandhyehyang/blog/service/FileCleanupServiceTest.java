@@ -38,7 +38,7 @@ class FileCleanupServiceTest {
     void setUp() {
         // 테스트용 고아 파일 목록 설정
         orphanedFiles = new ArrayList<>();
-        
+
         for (int i = 1; i <= 3; i++) {
             FileMetadata file = mock(FileMetadata.class);
             when(file.getId()).thenReturn((long) i);
@@ -60,7 +60,7 @@ class FileCleanupServiceTest {
 
         // then
         verify(fileMetadataRepository).findOrphanedFiles(any(LocalDateTime.class));
-        
+
         // 각 파일에 대해 삭제 메서드가 호출되었는지 확인
         for (FileMetadata file : orphanedFiles) {
             verify(fileUploadService).deleteFile(file.getId());
@@ -86,10 +86,10 @@ class FileCleanupServiceTest {
     void 예약된_고아_파일_정리_일부_실패_처리() {
         // given
         given(fileMetadataRepository.findOrphanedFiles(any(LocalDateTime.class))).willReturn(orphanedFiles);
-        
+
         // 첫 번째 파일 삭제 시 예외 발생
         doThrow(new RuntimeException("파일 삭제 실패")).when(fileUploadService).deleteFile(1L);
-        
+
         // 나머지 파일은 정상 삭제
         doNothing().when(fileUploadService).deleteFile(2L);
         doNothing().when(fileUploadService).deleteFile(3L);
@@ -99,7 +99,7 @@ class FileCleanupServiceTest {
 
         // then
         verify(fileMetadataRepository).findOrphanedFiles(any(LocalDateTime.class));
-        
+
         // 모든 파일에 대해 삭제 시도가 이루어졌는지 확인
         verify(fileUploadService).deleteFile(1L);
         verify(fileUploadService).deleteFile(2L);
@@ -119,7 +119,7 @@ class FileCleanupServiceTest {
         // then
         assertThat(deletedCount).isEqualTo(3); // 3개 파일 모두 삭제됨
         verify(fileMetadataRepository).findOrphanedFiles(any(LocalDateTime.class));
-        
+
         // 각 파일에 대해 삭제 메서드가 호출되었는지 확인
         for (FileMetadata file : orphanedFiles) {
             verify(fileUploadService).deleteFile(file.getId());
@@ -146,10 +146,10 @@ class FileCleanupServiceTest {
     void 수동_고아_파일_정리_일부_실패_처리() {
         // given
         given(fileMetadataRepository.findOrphanedFiles(any(LocalDateTime.class))).willReturn(orphanedFiles);
-        
+
         // 첫 번째 파일 삭제 시 예외 발생
         doThrow(new RuntimeException("파일 삭제 실패")).when(fileUploadService).deleteFile(1L);
-        
+
         // 나머지 파일은 정상 삭제
         doNothing().when(fileUploadService).deleteFile(2L);
         doNothing().when(fileUploadService).deleteFile(3L);
@@ -160,7 +160,7 @@ class FileCleanupServiceTest {
         // then
         assertThat(deletedCount).isEqualTo(2); // 2개 파일만 삭제됨
         verify(fileMetadataRepository).findOrphanedFiles(any(LocalDateTime.class));
-        
+
         // 모든 파일에 대해 삭제 시도가 이루어졌는지 확인
         verify(fileUploadService).deleteFile(1L);
         verify(fileUploadService).deleteFile(2L);
@@ -172,7 +172,7 @@ class FileCleanupServiceTest {
     void 수동_고아_파일_정리_저장소_예외_처리() {
         // given
         given(fileMetadataRepository.findOrphanedFiles(any(LocalDateTime.class)))
-                .thenThrow(new RuntimeException("데이터베이스 오류"));
+                .willThrow(new RuntimeException("데이터베이스 오류"));
 
         // when
         int deletedCount = fileCleanupService.cleanupOrphanedFiles(12); // 12시간 이전 파일 삭제
