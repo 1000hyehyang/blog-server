@@ -15,7 +15,6 @@ public record PostCreateRequest(
 
         @NotBlank(message = "카테고리는 필수 입력값입니다.")
         @Size(min = 1, max = 50, message = "카테고리는 1자 이상 50자 이하로 입력해주세요.")
-        @Pattern(regexp = "^[a-zA-Z0-9가-힣_-]*$", message = "카테고리는 영문, 한글, 숫자, 특수문자(_,-)만 사용 가능합니다.")
         String category,
 
         @NotBlank(message = "내용은 필수 입력값입니다.")
