@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 /**
  * HTML 콘텐츠에서 미디어 URL을 추출하기 위한 유틸리티 클래스
@@ -115,5 +117,41 @@ public class HtmlParser {
                 lowerUrl.endsWith(".ppt") ||
                 lowerUrl.endsWith(".pptx") ||
                 lowerUrl.endsWith(".txt");
+    }
+
+    /**
+     * HTML 콘텐츠에서 텍스트만 추출하고 지정된 길이로 제한
+     * 
+     * @param html HTML 콘텐츠
+     * @param maxLength 최대 길이 (기본값: 200)
+     * @return 추출된 텍스트 (최대 길이로 제한됨)
+     */
+    public static String extractText(String html, int maxLength) {
+        if (html == null || html.isEmpty()) {
+            return "";
+        }
+
+        // Jsoup을 사용하여 HTML 파싱
+        Document doc = Jsoup.parse(html);
+
+        // HTML 태그를 제거하고 텍스트만 추출
+        String text = doc.text();
+
+        // 최대 길이로 제한
+        if (text.length() > maxLength) {
+            return text.substring(0, maxLength);
+        }
+
+        return text;
+    }
+
+    /**
+     * HTML 콘텐츠에서 텍스트만 추출하고 기본 최대 길이(200자)로 제한
+     * 
+     * @param html HTML 콘텐츠
+     * @return 추출된 텍스트 (최대 200자로 제한됨)
+     */
+    public static String extractText(String html) {
+        return extractText(html, 200);
     }
 }

@@ -97,11 +97,14 @@ public class PostService {
      * @return 생성된 게시글 엔티티
      */
     private Post createPostEntity(PostCreateRequest request, String author) {
+        // HTML에서 텍스트 추출 (최대 200자)
+        String extractedContent = HtmlParser.extractText(request.html());
+
         // 게시글 기본 정보로 엔티티 생성
         Post post = new Post(
                 request.title(),
                 request.category(),
-                request.content(),
+                extractedContent, // HTML에서 추출한 텍스트를 content로 사용
                 request.html(),
                 request.thumbnailUrl(),
                 author,
