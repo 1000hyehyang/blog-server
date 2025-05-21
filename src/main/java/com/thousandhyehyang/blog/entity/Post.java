@@ -27,7 +27,7 @@ public class Post extends BaseEntity {
     private String category;
 
     @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "LONGTEXT")
     private String content;
 
     @Lob

@@ -418,11 +418,17 @@ public class PostService {
             throw new AuthenticationException("게시글 수정 권한이 없습니다.");
         }
 
+        // HTML에서 텍스트 추출 (최대 200자)
+        String extractedContent = null;
+        if (request.html() != null) {
+            extractedContent = HtmlParser.extractText(request.html());
+        }
+
         // 게시글 내용 업데이트
         post.update(
             request.title(),
             request.category(),
-            request.content(),
+            extractedContent, // HTML에서 추출한 텍스트를 content로 사용
             request.html(),
             request.thumbnailUrl(),
             request.draft()
