@@ -23,4 +23,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // 작성자별 정식 게시글 조회 (최신순)
     List<Post> findByAuthorAndDraftIsFalseOrderByCreatedAtDesc(String author);
+
+    /**
+     * ID로 게시글을 조회하면서 태그 정보를 함께 가져오는 메서드 (N+1 문제 해결)
+     * 
+     * @param id 게시글 ID
+     * @return 태그 정보가 포함된 게시글
+     */
+    @org.springframework.data.jpa.repository.Query("SELECT p FROM Post p LEFT JOIN FETCH p.postTags WHERE p.id = :id")
+    java.util.Optional<Post> findByIdWithTags(@org.springframework.data.repository.query.Param("id") Long id);
 }

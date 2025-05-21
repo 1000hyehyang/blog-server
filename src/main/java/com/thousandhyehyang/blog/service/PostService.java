@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -246,6 +247,7 @@ public class PostService {
     /**
      * HTML 콘텐츠에서 파일을 추출하여 게시글과 연결
      * HTML 내용을 분석하여 포함된 미디어 파일(이미지, 비디오, 문서)을 찾아 게시글과 연결합니다.
+     * 성능 개선을 위해 비동기적으로 처리합니다.
      *
      * @param post 파일과 연결할 게시글
      * @param html 파일을 추출할 HTML 콘텐츠
@@ -258,18 +260,16 @@ public class PostService {
         // HTML에서 미디어 URL 추출
         Map<String, List<String>> mediaUrls = HtmlParser.extractMediaUrls(html);
 
-        // TODO: 성능 개선을 위한 비동기 처리 구현
-        // HTML에 수백 개의 파일 URL이 포함된 경우 성능 저하가 발생할 수 있음
-        // 아래 코드를 CompletableFuture 또는 Spring의 @Async를 사용하여 비동기적으로 처리하도록 개선 필요
-        // 예시: CompletableFuture.runAsync(() -> processMediaUrls(post, mediaUrls));
+        // 비동기적으로 미디어 URL 처리
+        // 게시글 저장/수정 작업이 완료된 후 백그라운드에서 미디어 파일 연결 처리
+        processMediaUrlsAsync(post.getId(), mediaUrls);
 
-        processMediaUrls(post, mediaUrls);
+        log.info("게시글 ID={}의 미디어 파일 연결 작업이 비동기적으로 시작되었습니다.", post.getId());
     }
 
     /**
      * 미디어 URL을 처리하여 게시글과 연결
      * 추출된 미디어 URL을 유형별로 처리하여 게시글과 연결합니다.
-     * 향후 비동기 처리를 위해 별도 메서드로 분리되었습니다.
      *
      * @param post 파일과 연결할 게시글
      * @param mediaUrls 처리할 미디어 URL 맵 (키: 미디어 유형, 값: URL 목록)
@@ -279,6 +279,35 @@ public class PostService {
         processMediaUrlsByType(post, mediaUrls.get("IMAGE"), "IMAGE");
         processMediaUrlsByType(post, mediaUrls.get("VIDEO"), "VIDEO");
         processMediaUrlsByType(post, mediaUrls.get("DOCUMENT"), "DOCUMENT");
+    }
+
+    /**
+     * 미디어 URL을 비동기적으로 처리하여 게시글과 연결
+     * 추출된 미디어 URL을 유형별로 처리하여 게시글과 연결합니다.
+     * 이 메서드는 비동기적으로 실행되어 게시글 저장/수정 작업이 완료된 후 백그라운드에서 처리됩니다.
+     *
+     * @param postId 파일과 연결할 게시글의 ID
+     * @param mediaUrls 처리할 미디어 URL 맵 (키: 미디어 유형, 값: URL 목록)
+     */
+    @Async("taskExecutor")
+    @Transactional
+    public void processMediaUrlsAsync(Long postId, Map<String, List<String>> mediaUrls) {
+        try {
+            log.debug("비동기 미디어 처리 시작: 게시글_ID={}", postId);
+
+            // 게시글 조회
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new PostNotFoundException(postId));
+
+            // 각 미디어 유형별로 처리
+            processMediaUrlsByType(post, mediaUrls.get("IMAGE"), "IMAGE");
+            processMediaUrlsByType(post, mediaUrls.get("VIDEO"), "VIDEO");
+            processMediaUrlsByType(post, mediaUrls.get("DOCUMENT"), "DOCUMENT");
+
+            log.info("비동기 미디어 처리 완료: 게시글_ID={}", postId);
+        } catch (Exception e) {
+            log.error("비동기 미디어 처리 중 오류 발생: 게시글_ID={}", postId, e);
+        }
     }
 
     /**
@@ -366,6 +395,22 @@ public class PostService {
     }
 
     /**
+     * ID로 게시글 조회 (태그 정보 포함)
+     * 주어진 ID로 게시글을 조회하고, 태그 정보를 함께 가져옵니다.
+     * N+1 문제를 방지하기 위해 JOIN FETCH를 사용합니다.
+     *
+     * @param id 조회할 게시글의 ID
+     * @return 태그 정보가 포함된 게시글 엔티티
+     * @throws PostNotFoundException 게시글을 찾을 수 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public Post getPostByIdWithTags(Long id) {
+        // ID로 게시글과 태그 정보를 함께 조회, 없으면 예외 발생
+        return postRepository.findByIdWithTags(id)
+                .orElseThrow(() -> new PostNotFoundException(id));
+    }
+
+    /**
      * ID로 게시글 상세 정보 조회
      * 게시글 정보와 연결된 파일 정보를 함께 조회하여 상세 정보로 반환합니다.
      * 임시저장 게시글은 작성자만 조회할 수 있습니다.
@@ -377,8 +422,8 @@ public class PostService {
      */
     @Transactional(readOnly = true)
     public PostDetailResponse getPostDetail(Long id) {
-        // 게시글 조회
-        Post post = getPostById(id);
+        // 게시글 조회 (태그 정보 포함)
+        Post post = getPostByIdWithTags(id);
 
         // 임시저장 게시글인 경우 작성자 확인
         if (post.isDraft()) {

@@ -46,7 +46,7 @@ public class Post extends BaseEntity {
     @Column(nullable = false)
     private boolean draft = false;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PostTag> postTags = new ArrayList<>();
 
     protected Post() {
