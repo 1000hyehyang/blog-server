@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
@@ -126,12 +128,13 @@ public class FileUploadService {
                 .orElseThrow(() -> new FileUploadException("파일을 찾을 수 없습니다."));
 
         try {
-            // Get the file from S3/R2
-            return s3Client.getObject(req -> req
-                            .bucket(r2Properties.getBucket())
-                            .key(metadata.getStorageKey())
-                            .build())
-                    .readAllBytes();
+            // Get the file from S3/R2 using explicit request object
+            GetObjectRequest request = GetObjectRequest.builder()
+                    .bucket(r2Properties.getBucket())
+                    .key(metadata.getStorageKey())
+                    .build();
+
+            return s3Client.getObject(request).readAllBytes();
         } catch (IOException e) {
             throw new FileUploadException("파일 다운로드 중 오류 발생: " + e.getMessage());
         }
@@ -161,11 +164,13 @@ public class FileUploadService {
         FileMetadata metadata = fileMetadataRepository.findById(id)
                 .orElseThrow(() -> new FileUploadException("파일을 찾을 수 없습니다."));
 
-        // S3/R2에서 파일 삭제
-        s3Client.deleteObject(req -> req
+        // S3/R2에서 파일 삭제 - 명시적 요청 객체 사용
+        DeleteObjectRequest request = DeleteObjectRequest.builder()
                 .bucket(r2Properties.getBucket())
                 .key(metadata.getStorageKey())
-                .build());
+                .build();
+
+        s3Client.deleteObject(request);
 
         // 데이터베이스에서 메타데이터 삭제
         fileMetadataRepository.delete(metadata);

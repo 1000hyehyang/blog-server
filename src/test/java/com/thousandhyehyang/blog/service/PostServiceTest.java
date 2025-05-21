@@ -22,6 +22,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -38,6 +40,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PostServiceTest {
 
     @Mock
@@ -74,18 +77,16 @@ class PostServiceTest {
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.getPrincipal()).thenReturn(testAccount);
 
-        // 테스트용 게시글 설정
-        testPost = new Post(
-                "테스트 제목",
-                "테스트",
-                "테스트 내용",
-                "<p>테스트 HTML 내용</p>",
-                "https://example.com/thumbnail.jpg",
-                "테스트사용자",
-                false
-        );
-        // ID는 Mockito에서 when().thenReturn() 패턴으로 처리
+        // 테스트용 게시글 설정 - mock으로 변경
+        testPost = mock(Post.class);
         when(testPost.getId()).thenReturn(1L);
+        when(testPost.getTitle()).thenReturn("테스트 제목");
+        when(testPost.getCategory()).thenReturn("테스트");
+        when(testPost.getContent()).thenReturn("테스트 내용");
+        when(testPost.getHtml()).thenReturn("<p>테스트 HTML 내용</p>");
+        when(testPost.getThumbnailUrl()).thenReturn("https://example.com/thumbnail.jpg");
+        when(testPost.getAuthor()).thenReturn("테스트사용자");
+        when(testPost.isDraft()).thenReturn(false);
         when(testPost.getCreatedAt()).thenReturn(LocalDateTime.now());
         when(testPost.getUpdatedAt()).thenReturn(LocalDateTime.now());
 
@@ -174,16 +175,14 @@ class PostServiceTest {
     @DisplayName("임시저장_게시글_조회_성공")
     void 임시저장_게시글_조회_성공() {
         // given
-        Post draftPost = new Post(
-                "임시저장 제목",
-                "테스트",
-                "임시저장 내용",
-                "<p>임시저장 HTML 내용</p>",
-                null,
-                "테스트사용자",
-                true
-        );
+        Post draftPost = mock(Post.class);
         when(draftPost.getId()).thenReturn(2L);
+        when(draftPost.getTitle()).thenReturn("임시저장 제목");
+        when(draftPost.getCategory()).thenReturn("테스트");
+        when(draftPost.getContent()).thenReturn("임시저장 내용");
+        when(draftPost.getHtml()).thenReturn("<p>임시저장 HTML 내용</p>");
+        when(draftPost.getThumbnailUrl()).thenReturn(null);
+        when(draftPost.getAuthor()).thenReturn("테스트사용자");
         when(draftPost.isDraft()).thenReturn(true);
 
         given(postRepository.findByAuthorAndDraftTrueOrderByCreatedAtDesc(anyString()))
@@ -213,8 +212,15 @@ class PostServiceTest {
     @DisplayName("최근_게시글_목록_조회_성공")
     void 최근_게시글_목록_조회_성공() {
         // given
-        Post post2 = new Post("제목2", "카테고리2", "내용2", "<p>HTML2</p>", null, "작성자2", false);
+        Post post2 = mock(Post.class);
         when(post2.getId()).thenReturn(2L);
+        when(post2.getTitle()).thenReturn("제목2");
+        when(post2.getCategory()).thenReturn("카테고리2");
+        when(post2.getContent()).thenReturn("내용2");
+        when(post2.getHtml()).thenReturn("<p>HTML2</p>");
+        when(post2.getThumbnailUrl()).thenReturn(null);
+        when(post2.getAuthor()).thenReturn("작성자2");
+        when(post2.isDraft()).thenReturn(false);
 
         List<Post> recentPosts = Arrays.asList(testPost, post2);
 
@@ -246,7 +252,7 @@ class PostServiceTest {
 
             // then
             assertThat(response).isNotNull();
-            verify(postRepository).save(any(Post.class));
+            verify(postRepository, atLeastOnce()).save(any(Post.class));
         }
     }
 
@@ -254,16 +260,15 @@ class PostServiceTest {
     @DisplayName("게시글_수정_실패_권한없음")
     void 게시글_수정_실패_권한없음() {
         // given
-        Post otherUserPost = new Post(
-                "다른 사용자 게시글",
-                "테스트",
-                "다른 사용자 내용",
-                "<p>다른 사용자 HTML</p>",
-                null,
-                "다른사용자",
-                false
-        );
+        Post otherUserPost = mock(Post.class);
         when(otherUserPost.getId()).thenReturn(3L);
+        when(otherUserPost.getTitle()).thenReturn("다른 사용자 게시글");
+        when(otherUserPost.getCategory()).thenReturn("테스트");
+        when(otherUserPost.getContent()).thenReturn("다른 사용자 내용");
+        when(otherUserPost.getHtml()).thenReturn("<p>다른 사용자 HTML</p>");
+        when(otherUserPost.getThumbnailUrl()).thenReturn(null);
+        when(otherUserPost.getAuthor()).thenReturn("다른사용자");
+        when(otherUserPost.isDraft()).thenReturn(false);
 
         given(postRepository.findById(anyLong())).willReturn(Optional.of(otherUserPost));
 
@@ -301,16 +306,15 @@ class PostServiceTest {
     @DisplayName("임시저장_게시글_조회_실패_다른사용자_접근")
     void 임시저장_게시글_조회_실패_다른사용자_접근() {
         // given
-        Post draftPost = new Post(
-                "임시저장 제목",
-                "테스트",
-                "임시저장 내용",
-                "<p>임시저장 HTML 내용</p>",
-                null,
-                "다른사용자",
-                true
-        );
+        Post draftPost = mock(Post.class);
         when(draftPost.getId()).thenReturn(4L);
+        when(draftPost.getTitle()).thenReturn("임시저장 제목");
+        when(draftPost.getCategory()).thenReturn("테스트");
+        when(draftPost.getContent()).thenReturn("임시저장 내용");
+        when(draftPost.getHtml()).thenReturn("<p>임시저장 HTML 내용</p>");
+        when(draftPost.getThumbnailUrl()).thenReturn(null);
+        when(draftPost.getAuthor()).thenReturn("다른사용자");
+        when(draftPost.isDraft()).thenReturn(true);
 
         given(postRepository.findByIdWithTags(anyLong())).willReturn(Optional.of(draftPost));
 

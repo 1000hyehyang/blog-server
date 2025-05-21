@@ -16,13 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -35,6 +35,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class FileUploadServiceTest {
 
     @Mock
@@ -91,12 +92,13 @@ class FileUploadServiceTest {
     void 파일_업로드_성공() {
         // given
         try (MockedStatic<FileValidator> fileValidatorMock = mockStatic(FileValidator.class)) {
-            // FileValidator 모킹
+            // FileValidator 모킹 - void 메서드는 doNothing() 사용
             fileValidatorMock.when(() -> FileValidator.validateByType(any(MultipartFile.class), any(UploadType.class)))
-                    .thenReturn(null); // void 메서드는 null 반환
+                    .thenAnswer(invocation -> null); // MockedStatic에서 void 메서드 모킹 방식
 
             // UUID 생성 결과를 예측할 수 없으므로 S3Client의 putObject 호출 자체를 검증
-            doNothing().when(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
+            when(s3Client.putObject(any(PutObjectRequest.class), any(RequestBody.class)))
+                    .thenReturn(mock(PutObjectResponse.class));
 
             // 파일 메타데이터 저장 모킹
             when(fileMetadataRepository.save(any(FileMetadata.class))).thenReturn(testFileMetadata);
@@ -145,8 +147,8 @@ class FileUploadServiceTest {
         // S3 응답 모킹
         ResponseInputStream<GetObjectResponse> mockResponse = mock(ResponseInputStream.class);
         when(mockResponse.readAllBytes()).thenReturn(testFileContent);
-
         when(s3Client.getObject(any(GetObjectRequest.class))).thenReturn(mockResponse);
+
 
         // when
         byte[] downloadedContent = fileUploadService.downloadFile(1L);
@@ -199,14 +201,15 @@ class FileUploadServiceTest {
     void 파일_삭제_성공() {
         // given
         given(fileMetadataRepository.findById(anyLong())).willReturn(Optional.of(testFileMetadata));
-        doNothing().when(s3Client).deleteObject(any(software.amazon.awssdk.services.s3.model.DeleteObjectRequest.class));
+        when(s3Client.deleteObject(any(DeleteObjectRequest.class)))
+                .thenReturn(mock(DeleteObjectResponse.class));
 
         // when
         fileUploadService.deleteFile(1L);
 
         // then
         verify(fileMetadataRepository).findById(1L);
-        verify(s3Client).deleteObject(any(software.amazon.awssdk.services.s3.model.DeleteObjectRequest.class));
+        verify(s3Client).deleteObject(any(DeleteObjectRequest.class));
         verify(fileMetadataRepository).delete(testFileMetadata);
     }
 

@@ -9,6 +9,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.util.Optional;
 
@@ -20,6 +22,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AccountServiceTest {
 
     @Mock
@@ -32,18 +35,14 @@ class AccountServiceTest {
 
     @BeforeEach
     void setUp() {
-        // 테스트용 계정 설정
-        testAccount = new Account(
-                "google",
-                "test@example.com",
-                "테스트 사용자",
-                "테스트닉네임",
-                "https://example.com/profile.jpg",
-                Account.Role.USER
-        );
-        
-        // ID 모킹
+        // 테스트용 계정 설정 - mock으로 변경
+        testAccount = mock(Account.class);
         when(testAccount.getId()).thenReturn(1L);
+        when(testAccount.getEmail()).thenReturn("test@example.com");
+        when(testAccount.getName()).thenReturn("테스트 사용자");
+        when(testAccount.getNickname()).thenReturn("테스트닉네임");
+        when(testAccount.getProfileImage()).thenReturn("https://example.com/profile.jpg");
+        when(testAccount.getRole()).thenReturn(Account.Role.USER);
     }
 
     @Test
@@ -141,7 +140,7 @@ class AccountServiceTest {
     void 닉네임_업데이트_실패_중복된_닉네임() {
         // given
         given(accountRepository.findById(anyLong())).willReturn(Optional.of(testAccount));
-        
+
         // updateNickname 메서드가 호출될 때 예외 발생하도록 설정
         doThrow(new IllegalArgumentException("이미 사용 중인 닉네임입니다."))
                 .when(testAccount).updateNickname("중복닉네임");

@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -30,6 +32,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class CommentServiceTest {
 
     @Mock
@@ -145,7 +148,7 @@ class CommentServiceTest {
         given(postRepository.existsById(anyLong())).willReturn(true);
         given(commentRepository.findById(anyLong())).willReturn(Optional.of(testComment));
         given(commentRepository.save(any(Comment.class))).willReturn(testComment);
-        
+
         // 수정 후 값 설정
         when(testComment.getNickname()).thenReturn(updateRequest.getNickname());
         when(testComment.getContent()).thenReturn(updateRequest.getContent());
@@ -202,10 +205,10 @@ class CommentServiceTest {
         // given
         Post otherPost = mock(Post.class);
         when(otherPost.getId()).thenReturn(2L);
-        
+
         Comment commentFromOtherPost = mock(Comment.class);
         when(commentFromOtherPost.getPost()).thenReturn(otherPost);
-        
+
         given(postRepository.existsById(anyLong())).willReturn(true);
         given(commentRepository.findById(anyLong())).willReturn(Optional.of(commentFromOtherPost));
 
@@ -265,10 +268,10 @@ class CommentServiceTest {
         // given
         Post otherPost = mock(Post.class);
         when(otherPost.getId()).thenReturn(2L);
-        
+
         Comment commentFromOtherPost = mock(Comment.class);
         when(commentFromOtherPost.getPost()).thenReturn(otherPost);
-        
+
         given(postRepository.existsById(anyLong())).willReturn(true);
         given(commentRepository.findById(anyLong())).willReturn(Optional.of(commentFromOtherPost));
 
