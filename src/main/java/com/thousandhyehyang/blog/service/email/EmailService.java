@@ -92,7 +92,7 @@ public class EmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         
-        helper.setFrom("ducogus12@gmail.com");
+        helper.setFrom("천혜향의 블로그");
         helper.setTo(to);
         helper.setSubject(subject);
         helper.setText(content, true);
