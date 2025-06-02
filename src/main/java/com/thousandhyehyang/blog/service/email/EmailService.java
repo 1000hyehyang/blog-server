@@ -41,7 +41,7 @@ public class EmailService {
                 String to = subscriber.getEmail();
                 String subject = "[블로그] 새 글이 올라왔어요: " + post.getTitle();
 
-                String postLink = domain + "/posts/" + post.getId();
+                String postLink = domain + "/post/" + post.getId();
                 String unsubscribeLink = domain + "/api/subscriptions/" + subscriber.getEmail();
                 String blogLink = domain;
 
@@ -75,7 +75,7 @@ public class EmailService {
         try {
             Context context = new Context();
             context.setVariable("message", "블로그 구독이 정상적으로 완료되었습니다.");
-            context.setVariable("blogLink", "https://1000hyehyang.vercel.app"); 
+            context.setVariable("blogLink", "https://1000hyehyang.vercel.app");
 
             String emailContent = templateEngine.process("subscription-confirmation", context);
 
