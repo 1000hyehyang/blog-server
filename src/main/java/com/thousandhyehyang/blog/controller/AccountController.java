@@ -5,7 +5,8 @@ import com.thousandhyehyang.blog.common.ApiResponse;
 import com.thousandhyehyang.blog.dto.account.NicknameUpdateRequest;
 import com.thousandhyehyang.blog.entity.Account;
 import com.thousandhyehyang.blog.repository.AccountRepository;
-import com.thousandhyehyang.blog.service.AccountService;
+import com.thousandhyehyang.blog.service.account.AccountService;
+
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

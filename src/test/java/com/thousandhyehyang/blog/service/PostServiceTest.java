@@ -1,9 +1,9 @@
 package com.thousandhyehyang.blog.service;
 
-import com.thousandhyehyang.blog.dto.PostCreateRequest;
-import com.thousandhyehyang.blog.dto.PostDetailResponse;
-import com.thousandhyehyang.blog.dto.PostSummaryResponse;
-import com.thousandhyehyang.blog.dto.PostUpdateRequest;
+import com.thousandhyehyang.blog.dto.post.PostCreateRequest;
+import com.thousandhyehyang.blog.dto.post.PostDetailResponse;
+import com.thousandhyehyang.blog.dto.post.PostSummaryResponse;
+import com.thousandhyehyang.blog.dto.post.PostUpdateRequest;
 import com.thousandhyehyang.blog.entity.Account;
 import com.thousandhyehyang.blog.entity.FileMetadata;
 import com.thousandhyehyang.blog.entity.Post;
@@ -12,6 +12,11 @@ import com.thousandhyehyang.blog.exception.AuthenticationException;
 import com.thousandhyehyang.blog.exception.PostNotFoundException;
 import com.thousandhyehyang.blog.repository.PostFileMappingRepository;
 import com.thousandhyehyang.blog.repository.PostRepository;
+import com.thousandhyehyang.blog.service.file.MediaProcessorService;
+import com.thousandhyehyang.blog.service.file.ThumbnailService;
+import com.thousandhyehyang.blog.service.post.PostService;
+import com.thousandhyehyang.blog.service.post.TagService;
+import com.thousandhyehyang.blog.service.email.EmailService;
 import com.thousandhyehyang.blog.util.HtmlParser;
 import com.thousandhyehyang.blog.util.SecurityUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +62,9 @@ class PostServiceTest {
     @Mock
     private ThumbnailService thumbnailService;
 
+    @Mock
+    private EmailService emailService;
+
     private PostService postService;
 
     private Account testAccount;
@@ -73,7 +81,8 @@ class PostServiceTest {
                 securityUtil,
                 tagService,
                 mediaProcessorService,
-                thumbnailService
+                thumbnailService,
+                emailService
         );
 
         // 테스트용 계정 설정

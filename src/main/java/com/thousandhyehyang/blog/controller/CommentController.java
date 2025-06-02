@@ -1,10 +1,11 @@
 package com.thousandhyehyang.blog.controller;
 
 import com.thousandhyehyang.blog.common.ApiResponse;
-import com.thousandhyehyang.blog.dto.CommentCreateRequest;
-import com.thousandhyehyang.blog.dto.CommentResponse;
-import com.thousandhyehyang.blog.dto.CommentUpdateRequest;
-import com.thousandhyehyang.blog.service.CommentService;
+import com.thousandhyehyang.blog.dto.comment.CommentCreateRequest;
+import com.thousandhyehyang.blog.dto.comment.CommentResponse;
+import com.thousandhyehyang.blog.dto.comment.CommentUpdateRequest;
+import com.thousandhyehyang.blog.service.comment.CommentService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

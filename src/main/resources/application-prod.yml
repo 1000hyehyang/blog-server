@@ -43,7 +43,7 @@ spring:
             scope:
               - user:email
               - read:user
-
+              -
   app:
     oauth2:
       redirect-uri: https://1000hyehyang.vercel.app/

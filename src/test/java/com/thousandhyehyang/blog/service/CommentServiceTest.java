@@ -1,14 +1,16 @@
 package com.thousandhyehyang.blog.service;
 
-import com.thousandhyehyang.blog.dto.CommentCreateRequest;
-import com.thousandhyehyang.blog.dto.CommentResponse;
-import com.thousandhyehyang.blog.dto.CommentUpdateRequest;
+import com.thousandhyehyang.blog.dto.comment.CommentCreateRequest;
+import com.thousandhyehyang.blog.dto.comment.CommentResponse;
+import com.thousandhyehyang.blog.dto.comment.CommentUpdateRequest;
 import com.thousandhyehyang.blog.entity.Comment;
 import com.thousandhyehyang.blog.entity.Post;
 import com.thousandhyehyang.blog.exception.CommentNotFoundException;
 import com.thousandhyehyang.blog.exception.PostNotFoundException;
 import com.thousandhyehyang.blog.repository.CommentRepository;
 import com.thousandhyehyang.blog.repository.PostRepository;
+import com.thousandhyehyang.blog.service.comment.CommentService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

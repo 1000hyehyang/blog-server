@@ -1,4 +1,4 @@
-package com.thousandhyehyang.blog.service;
+package com.thousandhyehyang.blog.service.file;
 
 import com.thousandhyehyang.blog.entity.FileMetadata;
 import com.thousandhyehyang.blog.entity.Post;

@@ -1,10 +1,11 @@
 package com.thousandhyehyang.blog.controller;
 
 import com.thousandhyehyang.blog.common.ApiResponse;
-import com.thousandhyehyang.blog.dto.FileUploadResponse;
+import com.thousandhyehyang.blog.dto.file.FileUploadResponse;
 import com.thousandhyehyang.blog.entity.FileMetadata;
 import com.thousandhyehyang.blog.enums.UploadType;
-import com.thousandhyehyang.blog.service.FileUploadService;
+import com.thousandhyehyang.blog.service.file.FileUploadService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

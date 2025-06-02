@@ -1,4 +1,4 @@
-package com.thousandhyehyang.blog.dto;
+package com.thousandhyehyang.blog.dto.comment;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

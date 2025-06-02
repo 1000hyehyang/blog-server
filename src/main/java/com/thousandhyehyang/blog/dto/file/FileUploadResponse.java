@@ -1,4 +1,4 @@
-package com.thousandhyehyang.blog.dto;
+package com.thousandhyehyang.blog.dto.file;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

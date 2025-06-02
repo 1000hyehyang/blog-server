@@ -1,7 +1,8 @@
-package com.thousandhyehyang.blog.service;
+package com.thousandhyehyang.blog.service.file;
 
 import com.thousandhyehyang.blog.entity.FileMetadata;
 import com.thousandhyehyang.blog.repository.FileMetadataRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;

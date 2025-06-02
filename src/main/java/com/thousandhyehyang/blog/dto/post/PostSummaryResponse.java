@@ -1,4 +1,4 @@
-package com.thousandhyehyang.blog.dto;
+package com.thousandhyehyang.blog.dto.post;
 
 import com.thousandhyehyang.blog.entity.Post;
 

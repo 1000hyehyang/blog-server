@@ -1,7 +1,7 @@
-package com.thousandhyehyang.blog.service;
+package com.thousandhyehyang.blog.service.file;
 
 import com.thousandhyehyang.blog.config.R2Properties;
-import com.thousandhyehyang.blog.dto.FileUploadResponse;
+import com.thousandhyehyang.blog.dto.file.FileUploadResponse;
 import com.thousandhyehyang.blog.entity.FileMetadata;
 import com.thousandhyehyang.blog.enums.UploadType;
 import com.thousandhyehyang.blog.exception.FileUploadException;

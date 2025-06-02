@@ -1,4 +1,4 @@
-package com.thousandhyehyang.blog.service;
+package com.thousandhyehyang.blog.service.post;
 
 import com.thousandhyehyang.blog.entity.Post;
 import org.springframework.stereotype.Service;

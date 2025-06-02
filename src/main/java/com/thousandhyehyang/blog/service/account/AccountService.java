@@ -1,4 +1,4 @@
-package com.thousandhyehyang.blog.service;
+package com.thousandhyehyang.blog.service.account;
 
 import com.thousandhyehyang.blog.entity.Account;
 import com.thousandhyehyang.blog.repository.AccountRepository;

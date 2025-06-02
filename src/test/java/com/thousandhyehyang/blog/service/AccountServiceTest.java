@@ -2,6 +2,8 @@ package com.thousandhyehyang.blog.service;
 
 import com.thousandhyehyang.blog.entity.Account;
 import com.thousandhyehyang.blog.repository.AccountRepository;
+import com.thousandhyehyang.blog.service.account.AccountService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

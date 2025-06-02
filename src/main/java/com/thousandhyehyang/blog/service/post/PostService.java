@@ -1,15 +1,18 @@
-package com.thousandhyehyang.blog.service;
+package com.thousandhyehyang.blog.service.post;
 
-import com.thousandhyehyang.blog.dto.PostCreateRequest;
-import com.thousandhyehyang.blog.dto.PostDetailResponse;
-import com.thousandhyehyang.blog.dto.PostSummaryResponse;
-import com.thousandhyehyang.blog.dto.PostUpdateRequest;
+import com.thousandhyehyang.blog.dto.post.PostCreateRequest;
+import com.thousandhyehyang.blog.dto.post.PostDetailResponse;
+import com.thousandhyehyang.blog.dto.post.PostSummaryResponse;
+import com.thousandhyehyang.blog.dto.post.PostUpdateRequest;
 import com.thousandhyehyang.blog.entity.Post;
 import com.thousandhyehyang.blog.entity.PostFileMapping;
 import com.thousandhyehyang.blog.exception.AuthenticationException;
 import com.thousandhyehyang.blog.exception.PostNotFoundException;
 import com.thousandhyehyang.blog.repository.PostFileMappingRepository;
 import com.thousandhyehyang.blog.repository.PostRepository;
+import com.thousandhyehyang.blog.service.email.EmailService;
+import com.thousandhyehyang.blog.service.file.MediaProcessorService;
+import com.thousandhyehyang.blog.service.file.ThumbnailService;
 import com.thousandhyehyang.blog.util.HtmlParser;
 import com.thousandhyehyang.blog.util.SecurityUtil;
 import org.slf4j.Logger;
@@ -32,19 +35,22 @@ public class PostService {
     private final TagService tagService;
     private final MediaProcessorService mediaProcessorService;
     private final ThumbnailService thumbnailService;
+    private final EmailService emailService;
 
     public PostService(PostRepository postRepository,
                        PostFileMappingRepository postFileMappingRepository,
                        SecurityUtil securityUtil,
                        TagService tagService,
                        MediaProcessorService mediaProcessorService,
-                       ThumbnailService thumbnailService) {
+                       ThumbnailService thumbnailService,
+                       EmailService emailService) {
         this.postRepository = postRepository;
         this.postFileMappingRepository = postFileMappingRepository;
         this.securityUtil = securityUtil;
         this.tagService = tagService;
         this.mediaProcessorService = mediaProcessorService;
         this.thumbnailService = thumbnailService;
+        this.emailService = emailService;
     }
 
     /**
@@ -66,6 +72,11 @@ public class PostService {
 
         // 파일 연결 처리
         processPostFiles(savedPost, request);
+
+        // 임시저장이 아닌 경우에만 이메일 알림 발송
+        if (!savedPost.isDraft()) {
+            emailService.sendNewPostNotification(savedPost);
+        }
 
         return savedPost.getId();
     }

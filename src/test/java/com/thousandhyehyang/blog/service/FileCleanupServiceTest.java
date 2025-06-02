@@ -2,6 +2,9 @@ package com.thousandhyehyang.blog.service;
 
 import com.thousandhyehyang.blog.entity.FileMetadata;
 import com.thousandhyehyang.blog.repository.FileMetadataRepository;
+import com.thousandhyehyang.blog.service.file.FileCleanupService;
+import com.thousandhyehyang.blog.service.file.FileUploadService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

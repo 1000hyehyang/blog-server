@@ -1,11 +1,12 @@
 package com.thousandhyehyang.blog.controller;
 
 import com.thousandhyehyang.blog.common.ApiResponse;
-import com.thousandhyehyang.blog.dto.PostCreateRequest;
-import com.thousandhyehyang.blog.dto.PostDetailResponse;
-import com.thousandhyehyang.blog.dto.PostSummaryResponse;
-import com.thousandhyehyang.blog.dto.PostUpdateRequest;
-import com.thousandhyehyang.blog.service.PostService;
+import com.thousandhyehyang.blog.dto.post.PostCreateRequest;
+import com.thousandhyehyang.blog.dto.post.PostDetailResponse;
+import com.thousandhyehyang.blog.dto.post.PostSummaryResponse;
+import com.thousandhyehyang.blog.dto.post.PostUpdateRequest;
+import com.thousandhyehyang.blog.service.post.PostService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

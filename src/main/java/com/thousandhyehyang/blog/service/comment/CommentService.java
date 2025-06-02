@@ -1,8 +1,8 @@
-package com.thousandhyehyang.blog.service;
+package com.thousandhyehyang.blog.service.comment;
 
-import com.thousandhyehyang.blog.dto.CommentCreateRequest;
-import com.thousandhyehyang.blog.dto.CommentResponse;
-import com.thousandhyehyang.blog.dto.CommentUpdateRequest;
+import com.thousandhyehyang.blog.dto.comment.CommentCreateRequest;
+import com.thousandhyehyang.blog.dto.comment.CommentResponse;
+import com.thousandhyehyang.blog.dto.comment.CommentUpdateRequest;
 import com.thousandhyehyang.blog.entity.Comment;
 import com.thousandhyehyang.blog.entity.Post;
 import com.thousandhyehyang.blog.exception.CommentNotFoundException;

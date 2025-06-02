@@ -2,11 +2,12 @@ package com.thousandhyehyang.blog.service;
 
 import com.thousandhyehyang.blog.common.ApiResponse;
 import com.thousandhyehyang.blog.config.R2Properties;
-import com.thousandhyehyang.blog.dto.FileUploadResponse;
+import com.thousandhyehyang.blog.dto.file.FileUploadResponse;
 import com.thousandhyehyang.blog.entity.FileMetadata;
 import com.thousandhyehyang.blog.enums.UploadType;
 import com.thousandhyehyang.blog.exception.FileUploadException;
 import com.thousandhyehyang.blog.repository.FileMetadataRepository;
+import com.thousandhyehyang.blog.service.file.FileUploadService;
 import com.thousandhyehyang.blog.util.FileValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
