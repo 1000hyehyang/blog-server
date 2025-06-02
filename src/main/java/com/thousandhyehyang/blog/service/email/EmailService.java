@@ -29,24 +29,44 @@ public class EmailService {
 
     @Async
     public void sendNewPostNotification(Post post) {
-        List<Subscriber> subscribers = subscriberRepository.findAllByStatus(SubscriptionStatus.SUBSCRIBED);
-        
-        for (Subscriber subscriber : subscribers) {
-            try {
+        log.info("📩 [START] 새 게시글 알림 이메일 발송 시작: 제목={}, 작성자={}", post.getTitle(), post.getAuthor());
+
+        try {
+            List<Subscriber> subscribers = subscriberRepository.findAllByStatus(SubscriptionStatus.SUBSCRIBED);
+            log.info("✅ 구독자 수: {}", subscribers.size());
+
+            String domain = "https://1000hyehyang.vercel.app";
+
+            for (Subscriber subscriber : subscribers) {
+                String to = subscriber.getEmail();
+                String subject = "[블로그] 새 글이 올라왔어요: " + post.getTitle();
+
+                String postLink = domain + "/posts/" + post.getId();
+                String unsubscribeLink = domain + "/api/subscriptions/" + subscriber.getEmail();
+                String blogLink = domain;
+
                 Context context = new Context();
                 context.setVariable("postTitle", post.getTitle());
-                context.setVariable("postUrl", "https://1000hyehyang.vercel.app/" + post.getId());
-                context.setVariable("email", subscriber.getEmail());
-                
-                String emailContent = templateEngine.process("new-post-notification", context);
-                sendEmail(subscriber.getEmail(), "[새로운 게시글] " + post.getTitle(), emailContent);
-                
-                log.info("New post notification email sent to: {} for post: {}", 
-                    subscriber.getEmail(), post.getTitle());
-            } catch (Exception e) {
-                log.error("Failed to send new post notification email to: {} for post: {}", 
-                    subscriber.getEmail(), post.getTitle(), e);
+                context.setVariable("postLink", postLink);
+                context.setVariable("unsubscribeLink", unsubscribeLink);
+                context.setVariable("blogLink", blogLink);
+
+                String content = templateEngine.process("new-post-notification", context);
+
+                log.info("📤 이메일 전송 시도: to={}", to);
+
+                try {
+                    sendEmail(to, subject, content);
+                    log.info("✅ 이메일 전송 성공: {}", to);
+                } catch (Exception e) {
+                    log.error("❌ 이메일 전송 실패: {} - {}", to, e.getMessage(), e);
+                }
             }
+
+            log.info("📩 [END] 새 게시글 알림 이메일 발송 완료");
+
+        } catch (Exception e) {
+            log.error("🚨 이메일 알림 전체 실패: {}", e.getMessage(), e);
         }
     }
 
@@ -54,7 +74,11 @@ public class EmailService {
     public void sendSubscriptionConfirmation(String email) {
         try {
             Context context = new Context();
+            context.setVariable("message", "블로그 구독이 정상적으로 완료되었습니다.");
+            context.setVariable("blogLink", "https://1000hyehyang.vercel.app"); 
+
             String emailContent = templateEngine.process("subscription-confirmation", context);
+
             sendEmail(email, "[블로그 구독] 구독 상태 알림", emailContent);
             log.info("Subscription confirmation email sent to: {}", email);
         } catch (Exception e) {
@@ -64,6 +88,7 @@ public class EmailService {
     }
 
     private void sendEmail(String to, String subject, String content) throws MessagingException {
+        log.info("📤 Sending email to {}", to);
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         

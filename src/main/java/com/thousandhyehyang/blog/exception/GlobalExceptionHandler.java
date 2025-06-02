@@ -3,6 +3,7 @@ package com.thousandhyehyang.blog.exception;
 import com.thousandhyehyang.blog.common.ApiErrorResponse;
 import com.thousandhyehyang.blog.common.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * 전역 예외 처리 클래스
  * 컨트롤러에서 발생하는 예외를 한 곳에서 처리하여 일관된 응답 포맷을 제공합니다.
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -86,6 +88,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(
                 ApiErrorResponse.of(ErrorCode.VALIDATION_ERROR, errorMessage)
         );
+    }
+
+    /**
+     * 이메일 중복 구독 시 예외 처리
+     */
+    @ExceptionHandler(DuplicateSubscriptionException.class)
+    public ResponseEntity<ApiErrorResponse> handleDuplicateSubscriptionException(DuplicateSubscriptionException e) {
+        log.error("Duplicate subscription: {}", e.getMessage());
+        return ResponseEntity
+                .status(ErrorCode.DUPLICATE_SUBSCRIPTION.getStatus())
+                .body(ApiErrorResponse.of(ErrorCode.DUPLICATE_SUBSCRIPTION, e.getMessage()));
     }
 
     /**

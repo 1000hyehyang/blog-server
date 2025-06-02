@@ -8,16 +8,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "subscribers")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Subscriber extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,17 +32,12 @@ public class Subscriber extends BaseEntity {
     @Column(nullable = false)
     private SubscriptionStatus status;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
-
     public Subscriber(String email) {
         this.email = email;
+        this.status = SubscriptionStatus.SUBSCRIBED;
     }
 
     public void updateStatus(SubscriptionStatus status) {
         this.status = status;
     }
-} 
+}

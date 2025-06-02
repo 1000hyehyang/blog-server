@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface SubscriberRepository extends JpaRepository<Subscriber, Long> {
     Optional<Subscriber> findByEmail(String email);
     List<Subscriber> findAllByStatus(SubscriptionStatus status);
-    boolean existsByEmail(String email);
-} 
+    boolean existsByEmailAndStatus(String email, SubscriptionStatus subscriptionStatus);
+}

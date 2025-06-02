@@ -72,6 +72,9 @@ public class SecurityConfig {
                         // OAuth2 인증 흐름 관련 엔드포인트 공개
                         .requestMatchers("/oauth2/**", "/auth/refresh-token").permitAll()
 
+                        // 구독 API는 로그인 없이 사용 가능하도록 허용
+                        .requestMatchers("/subscriptions/**").permitAll()
+
                         // 헬스 체크 엔드포인트 공개
                         .requestMatchers("/health/**").permitAll()
 

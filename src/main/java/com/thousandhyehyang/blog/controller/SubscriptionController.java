@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "구독 관리", description = "블로그 구독 관련 API")
 @RestController
-@RequestMapping("/api/subscriptions")
+@RequestMapping("/subscriptions")
 @RequiredArgsConstructor
 public class SubscriptionController {
 
@@ -31,4 +31,4 @@ public class SubscriptionController {
         subscriptionService.unsubscribe(email);
         return ResponseEntity.ok(new SubscriptionResponse("구독이 해지되었습니다."));
     }
-} 
+}
